@@ -54,7 +54,8 @@ src/
 │   │   ├── lessons/                 LESSONS : leçon en anglais par Day (résumé, points clés, vocabulaire EN→FR,
 │   │   │                            commandes, indice, explication FR, mini-QCM de 3 questions), un fichier par bloc
 │   │   ├── cards.ts                 SEED_CARDS : cartes de départ (clé unique `key`)
-│   │   └── questions.ts             SEED_QUESTIONS : questions de départ (clé unique `key`)
+│   │   ├── questions.ts             SEED_QUESTIONS : questions de départ + banque par domaine (clé unique `key`)
+│   │   └── bank/                    d1.ts … d6.ts : banque de questions originales par domaine
 │   ├── server/                      CODE SERVEUR UNIQUEMENT
 │   │   ├── db.ts                    Connexion, MIGRATIONS[], seed(), getSetting/setSetting
 │   │   ├── repo.ts                  Toutes les requêtes SQL (planning, thèmes, vidéos, FSRS, QCM, stats)
@@ -228,6 +229,7 @@ Ce qu'il faut savoir sur le LXC :
   - Page Stats complète : temps par semaine et par activité, activité quotidienne, jours et heures de travail, états des cartes, boutons, rétention, paquets, cartes difficiles, scores QCM (pratique / examen), domaines, thèmes faibles, tableau des 53 thèmes, grille des 63 mini-QCM, subnetting (précision et vitesse), vidéos vs planning, tâches par semaine, examens blancs.
   - Page Workflow (en français) : la méthode complète d'utilisation.
   - Import JSON de questions dans la banque QCM, gestion par lot (suppression d'un lot importé).
+  - Banque de **377 questions originales** couvrant les 53 thèmes (`src/lib/data/bank/d1.ts` à `d6.ts`, réparties selon le poids des domaines, avec des questions « Refer to the exhibit » en texte).
 - Migration 3 : `cards.day`, `cards.source`, `reviews.prev`, `questions.source`. Testée sur une base v0.2.
 
 Limites connues :

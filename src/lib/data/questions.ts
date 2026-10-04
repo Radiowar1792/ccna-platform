@@ -11,7 +11,7 @@ export interface SeedQuestion {
 
 const q = (key: string, topic: string, stem: string, options: string[], answer: number[], explanation: string): SeedQuestion => ({ key, topic, stem, options, answer, explanation });
 
-export const SEED_QUESTIONS: SeedQuestion[] = [
+const BASE_QUESTIONS: SeedQuestion[] = [
 	q('q-sub-1', '1.6', 'How many usable host addresses are available in the subnet 172.16.40.0/27?', ['14', '30', '32', '62'], [1], '/27 = 5 bits d\'hôte → 2^5 − 2 = 30 adresses utilisables (on retire l\'adresse réseau et le broadcast).'),
 	q('q-sub-2', '1.6', 'Which is the broadcast address of the subnet that contains host 10.10.10.77/28?', ['10.10.10.79', '10.10.10.80', '10.10.10.95', '10.10.10.63'], [0], '/28 = blocs de 16 : 64–79. L\'hôte .77 est dans 10.10.10.64/28, broadcast .79.'),
 	q('q-sub-3', '1.6', 'A network engineer needs subnets of at least 50 hosts each. Which prefix length wastes the fewest addresses?', ['/25', '/26', '/27', '/28'], [1], '/26 = 62 hôtes utilisables, le plus petit qui accepte 50 hôtes. /27 n\'en donne que 30.'),
@@ -66,3 +66,13 @@ export const SEED_QUESTIONS: SeedQuestion[] = [
 	q('q-auto-4', '6.6', 'Which tool is agentless and uses YAML playbooks pushed over SSH?', ['Puppet', 'Chef', 'Ansible', 'SNMP'], [2], 'Ansible est agentless, en push via SSH, avec des playbooks YAML.'),
 	q('q-ai-1', '6.4', 'What is an example of predictive AI in network operations?', ['Writing a configuration from a natural-language prompt', 'Forecasting link saturation from historical traffic data', 'Encrypting traffic with AES', 'Assigning IP addresses with DHCP'], [1], 'L\'IA prédictive anticipe à partir de données historiques. L\'IA générative produit du contenu (config, résumé) à partir d\'une demande.')
 ];
+
+import { BANK_D1 } from './bank/d1';
+import { BANK_D2 } from './bank/d2';
+import { BANK_D3 } from './bank/d3';
+import { BANK_D4 } from './bank/d4';
+import { BANK_D5 } from './bank/d5';
+import { BANK_D6 } from './bank/d6';
+
+/** Toutes les questions originales : base + banque par domaine (src/lib/data/bank). */
+export const SEED_QUESTIONS: SeedQuestion[] = [...BASE_QUESTIONS, ...BANK_D1, ...BANK_D2, ...BANK_D3, ...BANK_D4, ...BANK_D5, ...BANK_D6];

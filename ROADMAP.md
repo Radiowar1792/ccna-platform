@@ -22,6 +22,7 @@
 - Page Stats complète (graphiques et tableaux sur tout)
 - Page Workflow en français
 - Import JSON de questions QCM
+- Banque de 377 questions originales sur les 53 thèmes
 
 ## v0.4 (prochaines idées)
 - [ ] Anglais : bouton « Listen » sur les questions de QCM, traduction au survol des termes
