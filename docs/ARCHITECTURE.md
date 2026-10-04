@@ -182,7 +182,7 @@ Si tu modifies une page, ouvre-la en clair et en sombre, en largeur bureau et en
 - Fais des commits petits et cohérents : une fonctionnalité ou une correction par commit.
 - **Auteur** : GitHub refuse les e-mails privés. Utilise
   `git -c user.name="Batiste" -c user.email="210405393+Radiowar1792@users.noreply.github.com" commit …`
-- Si un agent Claude fait le commit, ajoute les lignes d'attribution (`Co-Authored-By: …`) en fin de message.
+- N'ajoute **pas** de ligne `Co-Authored-By` ni d'autre attribution dans les messages : Batiste ne veut pas d'autre contributeur sur le dépôt.
 - Ne commite **jamais** : `.env`, `data/*.db*`, `node_modules/`, `build/`, `.svelte-kit/` (déjà dans `.gitignore`).
 - Après une fonctionnalité : coche-la dans `ROADMAP.md` et mets à jour la section 10 ci-dessous.
 
