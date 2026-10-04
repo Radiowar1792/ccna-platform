@@ -5,7 +5,7 @@
 <svelte:head><title>Connexion · Objectif CCNA</title></svelte:head>
 
 <div class="wrap">
-	<form method="POST" class="card">
+	<form method="POST" action="?/login" class="card">
 		<div class="prompt"><b>User Access Verification</b></div>
 		<h1>Objectif CCNA</h1>
 		<label class="field" for="pw">Password:
