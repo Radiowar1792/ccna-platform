@@ -1,11 +1,14 @@
 # Contexte pour Claude
 
-Projet perso de Batiste (BTS SIO SISR) : plateforme de révision CCNA 200-301, auto-hébergée dans un LXC Debian 13 sur Proxmox.
+Plateforme perso de révision CCNA 200-301 de Batiste (BTS SIO SISR), auto-hébergée dans un LXC Debian 13 sur Proxmox.
 
-- Stack : SvelteKit 2, Svelte 5 (runes : $state, $derived, $props), TypeScript, SQLite via `node:sqlite`, ts-fsrs.
-- Tout le texte de l'interface est en français ; les énoncés de QCM et le recto des cartes sont en anglais (comme l'examen).
-- Schéma SQL : `src/lib/server/db.ts`. Pour le faire évoluer, AJOUTER une entrée au tableau MIGRATIONS (ne jamais modifier une migration existante).
-- Contenu de départ : `src/lib/data/*.ts`, importé avec INSERT OR IGNORE par `seed_key`.
-- Pas de dumps d'examen : les questions doivent être originales.
-- Vérifier : `npm run check` puis `npm run build`.
-- Déploiement : `deploy/update.sh <CTID>` sur le nœud Proxmox.
+**Lis `docs/ARCHITECTURE.md` avant toute modification.** Il contient l'architecture, le schéma de la base, les conventions, le workflow git et l'état actuel du projet.
+
+L'essentiel :
+- SvelteKit 2 + Svelte 5 (runes) + TypeScript, SQLite via `node:sqlite`, flashcards avec `ts-fsrs`.
+- Interface en français. QCM et recto des cartes en anglais, explications en français. Questions originales uniquement, jamais de dumps.
+- SQL uniquement dans `src/lib/server/repo.ts`. Pour changer le schéma, AJOUTE une migration dans `db.ts` sans jamais en modifier une existante.
+- Avant de commiter : `npm run check` puis `bash scripts/smoke.sh`.
+- Commits au format `feat(scope): description en français`, auteur `Batiste <210405393+Radiowar1792@users.noreply.github.com>`.
+- `main` est déployée telle quelle dans le LXC : elle doit toujours fonctionner.
+- Après une fonctionnalité, mets à jour `ROADMAP.md` et la section « État actuel » de `docs/ARCHITECTURE.md`.

@@ -9,9 +9,12 @@
     "build": "vite build",
     "preview": "vite preview --host",
     "start": "node --env-file-if-exists=.env build/index.js",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "smoke": "bash scripts/smoke.sh"
   },
-  "engines": { "node": ">=22.13" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "dependencies": {
     "ts-fsrs": "^5.4.2"
   },

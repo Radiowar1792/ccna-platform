@@ -4,6 +4,8 @@ Ma plateforme de préparation au **CCNA 200-301 v1.1** : planning sur 39 semaine
 
 ## Architecture
 
+Le guide complet pour développer (et pour les agents Claude) est dans [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
 | Couche | Choix | Pourquoi |
 |---|---|---|
 | Application | **SvelteKit 2 + Svelte 5 + TypeScript** | Front et back dans un seul projet, peu de code, rapide |
