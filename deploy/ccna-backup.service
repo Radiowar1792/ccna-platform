@@ -1,0 +1,7 @@
+[Unit]
+Description=Sauvegarde de la base CCNA (14 jours conservés)
+
+[Service]
+Type=oneshot
+User=ccna
+ExecStart=/bin/sh -c 'sqlite3 /var/lib/ccna-platform/ccna.db ".backup /var/backups/ccna-platform/ccna-$(date +%%F).db" && find /var/backups/ccna-platform -name "ccna-*.db" -mtime +14 -delete'

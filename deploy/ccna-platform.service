@@ -1,0 +1,23 @@
+[Unit]
+Description=Plateforme de révision CCNA
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ccna
+Group=ccna
+WorkingDirectory=/opt/ccna-platform
+EnvironmentFile=/etc/ccna-platform.env
+ExecStart=/usr/bin/node --disable-warning=ExperimentalWarning build/index.js
+Restart=on-failure
+RestartSec=3
+# Durcissement
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/ccna-platform
+
+[Install]
+WantedBy=multi-user.target

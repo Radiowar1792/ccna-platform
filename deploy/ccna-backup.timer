@@ -1,0 +1,9 @@
+[Unit]
+Description=Sauvegarde quotidienne de la base CCNA
+
+[Timer]
+OnCalendar=*-*-* 03:30
+Persistent=true
+
+[Install]
+WantedBy=timers.target
