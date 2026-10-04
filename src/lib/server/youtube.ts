@@ -37,12 +37,17 @@ function collect(node: unknown, out: Map<string, string>, tokens: string[]) {
 		const t = pv.title?.runs?.map((r: any) => r.text).join('') ?? pv.title?.simpleText ?? '';
 		if (t) out.set(pv.videoId, t);
 	}
+	const pp = o.playlistPanelVideoRenderer;
+	if (pp?.videoId) {
+		const t = pp.title?.simpleText ?? pp.title?.runs?.map((r: any) => r.text).join('') ?? '';
+		if (t) out.set(pp.videoId, t);
+	}
 	const lv = o.lockupViewModel;
 	if (lv?.contentId && lv.contentType !== 'LOCKUP_CONTENT_TYPE_PLAYLIST') {
 		const t = lv.metadata?.lockupMetadataViewModel?.title?.content;
 		if (t) out.set(lv.contentId, t);
 	}
-	const tok = o.continuationCommand?.token;
+	const tok = o.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token;
 	if (typeof tok === 'string') tokens.push(tok);
 	for (const k in o) collect(o[k], out, tokens);
 }
@@ -63,16 +68,46 @@ async function viaPage(): Promise<Item[]> {
 
 	const version = html.match(/"INNERTUBE_CLIENT_VERSION":"([^"]+)"/)?.[1] ?? '2.20241001.00.00';
 	const apiKey = html.match(/"INNERTUBE_API_KEY":"([^"]+)"/)?.[1];
+	const visitor = html.match(/"VISITOR_DATA":"([^"]+)"/)?.[1];
 	for (let i = 0; i < 10 && tokens.length; i++) {
-		const token = tokens.pop()!;
+		const token = tokens.shift()!;
 		tokens = [];
-		const res = await fetch(`https://www.youtube.com/youtubei/v1/browse?prettyPrint=false${apiKey ? '&key=' + apiKey : ''}`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json', 'User-Agent': UA, Cookie: COOKIE },
-			body: JSON.stringify({ context: { client: { clientName: 'WEB', clientVersion: version, hl: 'en', gl: 'US' } }, continuation: token })
-		});
-		if (!res.ok) break;
-		collect(await res.json(), videos, tokens);
+		try {
+			const res = await fetch(`https://www.youtube.com/youtubei/v1/browse?prettyPrint=false${apiKey ? '&key=' + apiKey : ''}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'User-Agent': UA,
+					Cookie: COOKIE,
+					Origin: 'https://www.youtube.com',
+					Referer: `https://www.youtube.com/playlist?list=${JEREMY_PLAYLIST}`,
+					'X-Youtube-Client-Name': '1',
+					'X-Youtube-Client-Version': version,
+					...(visitor ? { 'X-Goog-Visitor-Id': visitor } : {})
+				},
+				body: JSON.stringify({ context: { client: { clientName: 'WEB', clientVersion: version, hl: 'en', gl: 'US', visitorData: visitor } }, continuation: token })
+			});
+			if (!res.ok) break;
+			collect(await res.json(), videos, tokens);
+		} catch {
+			break;
+		}
+	}
+
+	// Plan B : la page de lecture d'une vidéo de la playlist affiche un panneau avec les vidéos autour d'elle.
+	for (let i = 0; i < 3 && videos.size >= 100; i++) {
+		const lastId = [...videos.keys()].at(-1)!;
+		const before = videos.size;
+		try {
+			const w = await fetch(`https://www.youtube.com/watch?v=${lastId}&list=${JEREMY_PLAYLIST}&index=${videos.size}&hl=en`, {
+				headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9', Cookie: COOKIE }
+			});
+			const wm = (await w.text()).match(/(?:var ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
+			if (wm) collect(JSON.parse(wm[1]), videos, []);
+		} catch {
+			/* on garde ce qu'on a */
+		}
+		if (videos.size === before) break;
 	}
 	return [...videos].map(([id, title]) => ({ id, title }));
 }
