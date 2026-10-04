@@ -17,9 +17,9 @@
 			<text x={l - 6} y={y(v) + 4} text-anchor="end" class="tk">{v}</text>
 		{/each}
 		<line x1={l} x2={W - r} y1={y(target)} y2={y(target)} stroke="var(--green)" stroke-width="1.5" stroke-dasharray="5 4" />
-		<text x={W - r} y={y(target) - 5} text-anchor="end" class="tk" fill="var(--green)">objectif {target} %</text>
+		<text x={W - r} y={y(target) - 5} text-anchor="end" class="tk" fill="var(--green)">goal {target}%</text>
 		{#if points.length === 0}
-			<text x={(l + W - r) / 2} y={H / 2 + 10} text-anchor="middle" class="empty-t">Pas encore de données</text>
+			<text x={(l + W - r) / 2} y={H / 2 + 10} text-anchor="middle" class="empty-t">No data yet</text>
 		{:else}
 			{#if points.length > 1}
 				<path d="{path}L{xs(points.length - 1)} {y(0)}L{xs(0)} {y(0)}Z" fill="var(--accent-soft)" opacity="0.7" />
@@ -30,7 +30,7 @@
 				{#if points.length <= Math.floor(W / 60) || i % Math.ceil(points.length / Math.floor(W / 60)) === 0}
 					<text x={xs(i)} y={H - 12} text-anchor="middle" class="tk">{fmtShort(p.date)}</text>
 				{/if}
-				{#if i === points.length - 1}<text x={xs(i)} y={y(p.v) - 10} text-anchor="middle" class="val">{p.v} %</text>{/if}
+				{#if i === points.length - 1}<text x={xs(i)} y={y(p.v) - 10} text-anchor="middle" class="val">{p.v}%</text>{/if}
 			{/each}
 		{/if}
 	</svg>

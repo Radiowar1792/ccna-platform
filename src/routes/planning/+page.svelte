@@ -15,34 +15,34 @@
 	const overall = $derived(Math.round(data.weeks.slice(0, data.current + 1).reduce((a, w) => a + w.pct, 0) / (data.current + 1)));
 </script>
 
-<svelte:head><title>Planning · Objectif CCNA</title></svelte:head>
+<svelte:head><title>Plan · CCNA Goal</title></svelte:head>
 
 <div class="stack">
 	<header class="row">
-		<h1>Planning</h1>
+		<h1>Study plan</h1>
 		<span class="spacer"></span>
-		<span class="muted small">Régularité jusqu'ici : <b class="mono">{overall} %</b> des tâches faites</span>
+		<span class="muted small">Consistency so far: <b class="mono">{overall}%</b> of tasks done</span>
 	</header>
 
 	<div class="layout">
 		<div class="stack">
 			<div class="row">
-				<a class="btn small" href="?w={Math.max(0, data.sel - 1)}" data-sveltekit-noscroll>← Précédente</a>
-				{#if data.sel !== data.current}<a class="btn small ghost" href="/planning" data-sveltekit-noscroll>Cette semaine</a>{/if}
+				<a class="btn small" href="?w={Math.max(0, data.sel - 1)}" data-sveltekit-noscroll>← Previous</a>
+				{#if data.sel !== data.current}<a class="btn small ghost" href="/planning" data-sveltekit-noscroll>This week</a>{/if}
 				<span class="spacer"></span>
-				<a class="btn small" href="?w={Math.min(WEEKS.length - 1, data.sel + 1)}" data-sveltekit-noscroll>Suivante →</a>
+				<a class="btn small" href="?w={Math.min(WEEKS.length - 1, data.sel + 1)}" data-sveltekit-noscroll>Next →</a>
 			</div>
 			<WeekCard index={data.sel} solo={data.weeks[data.sel].solo} done={data.done} />
 			<div class="card flat">
-				<h3>Réglages</h3>
-				<label class="field" for="exam">Date visée pour l'examen
+				<h3>Settings</h3>
+				<label class="field" for="exam">Target exam date
 					<input id="exam" type="date" value={data.examDate} onchange={(e) => e.currentTarget.value && post('/api/plan', { op: 'examDate', value: e.currentTarget.value })} />
 				</label>
 				<div class="stack-s">
-					<span class="small muted">Premier week-end (10–11 oct.) : les suivants alternent tout seuls</span>
+					<span class="small muted">First weekend (10–11 Oct): the next ones alternate automatically</span>
 					<div class="seg">
-						<button aria-pressed={data.soloStartsOdd} onclick={() => post('/api/plan', { op: 'soloStartsOdd', value: true })}>Avec ma femme</button>
-						<button aria-pressed={!data.soloStartsOdd} onclick={() => post('/api/plan', { op: 'soloStartsOdd', value: false })}>Seul avec le petit</button>
+						<button aria-pressed={data.soloStartsOdd} onclick={() => post('/api/plan', { op: 'soloStartsOdd', value: true })}>With my wife</button>
+						<button aria-pressed={!data.soloStartsOdd} onclick={() => post('/api/plan', { op: 'soloStartsOdd', value: false })}>Alone with my son</button>
 					</div>
 				</div>
 			</div>
@@ -56,10 +56,10 @@
 					<a class="wk" class:current={i === data.current} class:sel={i === data.sel} href="?w={i}" data-sveltekit-noscroll>
 						<span class="n mono">S<b>{i + 1}</b></span>
 						<span class="body">
-							<span class="t">{w.title}{w.days ? ` · J${w.days[0]}–${w.days[1]}` : ''}</span>
-							<span class="d">{fmtShort(weekStart(i))} → {fmtShort(addDays(weekStart(i), 6))}{data.weeks[i].solo ? ' · week-end seul' : ''}</span>
+							<span class="t">{w.title}{w.days ? ` · D${w.days[0]}–${w.days[1]}` : ''}</span>
+							<span class="d">{fmtShort(weekStart(i))} → {fmtShort(addDays(weekStart(i), 6))}{data.weeks[i].solo ? ' · weekend alone' : ''}</span>
 						</span>
-						<span class="pct mono" class:full={data.weeks[i].pct === 100}>{data.weeks[i].pct ? data.weeks[i].pct + ' %' : '–'}</span>
+						<span class="pct mono" class:full={data.weeks[i].pct === 100}>{data.weeks[i].pct ? data.weeks[i].pct + '%' : '–'}</span>
 					</a>
 				{/each}
 			{/each}

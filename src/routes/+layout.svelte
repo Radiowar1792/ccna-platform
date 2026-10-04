@@ -4,14 +4,14 @@
 	let { data, children } = $props();
 
 	const NAV = [
-		{ href: '/', label: 'Accueil', icon: 'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
-		{ href: '/planning', label: 'Planning', icon: 'M4 6h16M4 12h16M4 18h10' },
-		{ href: '/calendrier', label: 'Calendrier', icon: 'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4' },
-		{ href: '/videos', label: 'Vidéos', icon: 'M4 6h16v12H4zM10 9l5 3-5 3z' },
+		{ href: '/', label: 'Home', icon: 'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+		{ href: '/planning', label: 'Plan', icon: 'M4 6h16M4 12h16M4 18h10' },
+		{ href: '/calendrier', label: 'Calendar', icon: 'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4' },
+		{ href: '/videos', label: 'Videos', icon: 'M4 6h16v12H4zM10 9l5 3-5 3z' },
 		{ href: '/flashcards', label: 'Flashcards', icon: 'M5 7h11v12H5zM8 4h11v12' },
-		{ href: '/qcm', label: 'QCM', icon: 'M9 6h11M9 12h11M9 18h11M4 6h1M4 12h1M4 18h1' },
+		{ href: '/qcm', label: 'Quiz', icon: 'M9 6h11M9 12h11M9 18h11M4 6h1M4 12h1M4 18h1' },
 		{ href: '/subnetting', label: 'Subnetting', icon: 'M4 12h4l2-6 4 12 2-6h4' },
-		{ href: '/themes', label: 'Thèmes', icon: 'M5 5h4v4H5zM5 15h4v4H5zM13 6h7M13 16h7' },
+		{ href: '/themes', label: 'Topics', icon: 'M5 5h4v4H5zM5 15h4v4H5zM13 6h7M13 16h7' },
 		{ href: '/stats', label: 'Stats', icon: 'M5 19V11M10 19V5M15 19v-6M20 19V9' }
 	];
 	const active = (href: string) => (href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href));
@@ -25,7 +25,7 @@
 		<aside class="side">
 			<a class="brand" href="/">
 				<svg viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><rect width="64" height="64" rx="12" fill="var(--accent)"/><g fill="var(--accent-ink)"><circle cx="18" cy="33" r="3.4"/><circle cx="28" cy="33" r="3.4"/><circle cx="38" cy="33" r="3.4" fill="var(--green)"/><circle cx="48" cy="33" r="3.4" fill="var(--amber)"/></g></svg>
-				<span>Objectif CCNA</span>
+				<span>CCNA Goal</span>
 			</a>
 			<nav>
 				{#each NAV as n}
@@ -37,7 +37,7 @@
 				{/each}
 			</nav>
 			{#if data.auth}
-				<form method="POST" action="/login?/logout" class="logout"><button class="btn ghost small">Se déconnecter</button></form>
+				<form method="POST" action="/login?/logout" class="logout"><button class="btn ghost small">Log out</button></form>
 			{/if}
 		</aside>
 		<main class="main">

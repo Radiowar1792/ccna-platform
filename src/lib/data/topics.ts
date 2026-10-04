@@ -1,77 +1,77 @@
-// Thèmes officiels de l'examen CCNA 200-301 v1.1 (reformulés en français).
+// Official CCNA 200-301 v1.1 exam topics (short wording).
 export interface Domain {
 	id: string;
 	en: string;
-	fr: string;
+	name: string;
 	weight: number;
 	topics: [code: string, label: string][];
 }
 
 export const DOMAINS: Domain[] = [
-	{ id: '1', en: 'Network Fundamentals', fr: 'Fondamentaux réseau', weight: 20, topics: [
-		['1.1', 'Rôle des équipements : routeurs, switchs L2/L3, NGFW/IPS, AP, WLC, endpoints, serveurs, PoE'],
-		['1.2', 'Topologies : 2 et 3 tiers, spine-leaf, WAN, SOHO, on-premise vs cloud'],
-		['1.3', 'Câblage : fibre mono/multimode, cuivre, Ethernet partagé vs point à point'],
-		['1.4', "Problèmes d'interface et de câble : collisions, erreurs, duplex, vitesse"],
+	{ id: '1', en: 'Network Fundamentals', name: 'Network Fundamentals', weight: 20, topics: [
+		['1.1', 'Role of network components: routers, L2/L3 switches, NGFW/IPS, APs, WLCs, endpoints, servers, PoE'],
+		['1.2', 'Topology architectures: two-tier, three-tier, spine-leaf, WAN, SOHO, on-premises vs cloud'],
+		['1.3', 'Physical interfaces and cabling: single-mode/multimode fiber, copper, shared media vs point-to-point'],
+		['1.4', 'Interface and cable issues: collisions, errors, duplex mismatch, speed'],
 		['1.5', 'TCP vs UDP'],
-		['1.6', 'Adressage IPv4 et subnetting'],
-		['1.7', 'Adressage IPv4 privé'],
-		['1.8', 'Adressage IPv6 et préfixes'],
-		['1.9', "Types d'adresses IPv6 : global unicast, unique local, link-local, anycast, multicast, EUI-64"],
-		['1.10', 'Vérifier la config IP des postes (Windows, macOS, Linux)'],
-		['1.11', 'Principes du Wi-Fi : canaux non chevauchants, SSID, RF, chiffrement'],
-		['1.12', 'Virtualisation : serveurs, conteneurs, VRF'],
-		['1.13', 'Switching : apprentissage et vieillissement MAC, flooding, table MAC']
+		['1.6', 'IPv4 addressing and subnetting'],
+		['1.7', 'Private IPv4 addressing'],
+		['1.8', 'IPv6 addressing and prefixes'],
+		['1.9', 'IPv6 address types: global unicast, unique local, link-local, anycast, multicast, modified EUI-64'],
+		['1.10', 'Verify IP parameters for client OS (Windows, macOS, Linux)'],
+		['1.11', 'Wireless principles: non-overlapping channels, SSID, RF, encryption'],
+		['1.12', 'Virtualization: server virtualization, containers, VRFs'],
+		['1.13', 'Switching concepts: MAC learning and aging, frame switching, flooding, MAC address table']
 	]},
-	{ id: '2', en: 'Network Access', fr: 'Accès réseau', weight: 20, topics: [
-		['2.1', "VLAN : ports d'accès (data et voix), VLAN par défaut, inter-VLAN"],
-		['2.2', 'Trunks 802.1Q et VLAN natif'],
-		['2.3', 'CDP et LLDP'],
-		['2.4', 'EtherChannel (LACP) L2 et L3'],
-		['2.5', 'Rapid PVST+ : root bridge, rôles et états des ports, PortFast, root/loop/BPDU guard'],
-		['2.6', 'Architectures Wi-Fi et modes des AP'],
-		['2.7', 'Connexions physiques WLAN : AP, WLC, trunk, LAG'],
-		['2.8', 'Accès de gestion : console, Telnet, SSH, HTTP/S, TACACS+/RADIUS, cloud'],
-		['2.9', 'Interface graphique du WLC : création WLAN, sécurité, QoS']
+	{ id: '2', en: 'Network Access', name: 'Network Access', weight: 20, topics: [
+		['2.1', 'VLANs: access ports (data and voice), default VLAN, inter-VLAN connectivity'],
+		['2.2', 'Interswitch connectivity: trunk ports, 802.1Q, native VLAN'],
+		['2.3', 'Layer 2 discovery protocols: CDP and LLDP'],
+		['2.4', 'EtherChannel (LACP), Layer 2 and Layer 3'],
+		['2.5', 'Rapid PVST+: root bridge, port roles and states, PortFast, root guard, loop guard, BPDU guard'],
+		['2.6', 'Cisco wireless architectures and AP modes'],
+		['2.7', 'WLAN physical infrastructure: AP, WLC, access/trunk ports, LAG'],
+		['2.8', 'Device management access: console, Telnet, SSH, HTTP/HTTPS, TACACS+/RADIUS, cloud managed'],
+		['2.9', 'WLC GUI: WLAN creation, security settings, QoS profiles, advanced settings']
 	]},
-	{ id: '3', en: 'IP Connectivity', fr: 'Connectivité IP', weight: 25, topics: [
-		['3.1', 'Lire une table de routage : code, préfixe, masque, next hop, AD, métrique, passerelle par défaut'],
-		['3.2', 'Décision de routage : longest prefix match, AD, métrique'],
-		['3.3', 'Routes statiques IPv4/IPv6 : par défaut, réseau, hôte, flottante'],
-		['3.4', 'OSPFv2 single-area : voisins, point à point, DR/BDR, router ID'],
-		['3.5', 'FHRP (HSRP)']
+	{ id: '3', en: 'IP Connectivity', name: 'IP Connectivity', weight: 25, topics: [
+		['3.1', 'Routing table: protocol code, prefix, mask, next hop, AD, metric, gateway of last resort'],
+		['3.2', 'Forwarding decision: longest prefix match, administrative distance, metric'],
+		['3.3', 'IPv4 and IPv6 static routing: default, network, host, floating static'],
+		['3.4', 'Single-area OSPFv2: neighbor adjacencies, point-to-point, broadcast (DR/BDR), router ID'],
+		['3.5', 'First hop redundancy protocols (FHRP)']
 	]},
-	{ id: '4', en: 'IP Services', fr: 'Services IP', weight: 10, topics: [
-		['4.1', 'NAT statique et pools (+ PAT)'],
-		['4.2', 'NTP client/serveur'],
-		['4.3', 'Rôle de DHCP et DNS'],
-		['4.4', 'SNMP'],
-		['4.5', 'Syslog : facilities et niveaux'],
-		['4.6', 'DHCP client et relay'],
-		['4.7', 'QoS : classification, marquage, files, congestion, policing, shaping'],
-		['4.8', 'Accès distant SSH'],
-		['4.9', 'TFTP et FTP']
+	{ id: '4', en: 'IP Services', name: 'IP Services', weight: 10, topics: [
+		['4.1', 'Inside source NAT: static and pools (+ PAT)'],
+		['4.2', 'NTP in client and server mode'],
+		['4.3', 'Role of DHCP and DNS'],
+		['4.4', 'Function of SNMP'],
+		['4.5', 'Syslog: facilities and severity levels'],
+		['4.6', 'DHCP client and relay'],
+		['4.7', 'QoS: classification, marking, queuing, congestion, policing, shaping'],
+		['4.8', 'Remote access with SSH'],
+		['4.9', 'TFTP and FTP in the network']
 	]},
-	{ id: '5', en: 'Security Fundamentals', fr: 'Sécurité', weight: 15, topics: [
-		['5.1', 'Menaces, vulnérabilités, exploits, mitigation'],
-		['5.2', 'Programmes de sécurité : sensibilisation, formation, accès physique'],
-		['5.3', 'Mots de passe locaux sur les équipements'],
-		['5.4', 'Politiques de mots de passe, MFA, certificats, biométrie'],
-		['5.5', 'VPN IPsec site à site et accès distant'],
-		['5.6', 'ACL'],
-		['5.7', 'Sécurité L2 : DHCP snooping, DAI, port security'],
-		['5.8', 'AAA : authentification, autorisation, traçabilité'],
-		['5.9', 'Sécurité Wi-Fi : WPA, WPA2, WPA3'],
-		['5.10', "Config d'un WLAN WPA2-PSK via l'interface graphique"]
+	{ id: '5', en: 'Security Fundamentals', name: 'Security Fundamentals', weight: 15, topics: [
+		['5.1', 'Key concepts: threats, vulnerabilities, exploits, mitigation'],
+		['5.2', 'Security programs: user awareness, training, physical access control'],
+		['5.3', 'Device access control with local passwords'],
+		['5.4', 'Password policies, MFA, certificates, biometrics'],
+		['5.5', 'IPsec VPNs: site-to-site and remote access'],
+		['5.6', 'Access control lists (ACLs)'],
+		['5.7', 'Layer 2 security: DHCP snooping, DAI, port security'],
+		['5.8', 'AAA: authentication, authorization, accounting'],
+		['5.9', 'Wireless security protocols: WPA, WPA2, WPA3'],
+		['5.10', 'Configure a WLAN with WPA2 PSK using the GUI']
 	]},
-	{ id: '6', en: 'Automation & Programmability', fr: 'Automatisation', weight: 10, topics: [
-		['6.1', "Impact de l'automatisation sur la gestion du réseau"],
-		['6.2', 'Réseau traditionnel vs piloté par contrôleur'],
-		['6.3', 'SDN : overlay, underlay, fabric, plans de contrôle et de données, API northbound/southbound'],
-		['6.4', "IA générative et prédictive dans l'exploitation réseau"],
-		['6.5', 'API REST : CRUD, verbes HTTP, encodage des données'],
-		['6.6', 'Gestion de configuration : Ansible et Terraform'],
-		['6.7', 'Lire du JSON']
+	{ id: '6', en: 'Automation & Programmability', name: 'Automation & Programmability', weight: 10, topics: [
+		['6.1', 'How automation impacts network management'],
+		['6.2', 'Traditional networks vs controller-based networking'],
+		['6.3', 'Software-defined architectures: overlay, underlay, fabric, control/data plane, northbound/southbound APIs'],
+		['6.4', 'AI (generative and predictive) and machine learning in network operations'],
+		['6.5', 'REST APIs: CRUD, HTTP verbs, data encoding'],
+		['6.6', 'Configuration management: Ansible and Terraform'],
+		['6.7', 'Recognize components of JSON-encoded data']
 	]}
 ];
 

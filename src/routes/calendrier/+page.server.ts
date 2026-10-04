@@ -23,21 +23,21 @@ export const load = ({ url }) => {
 		const events: { label: string; tone: string }[] = [];
 		if (inPlan) {
 			const w = WEEKS[wi];
-			if (w.kind === 'maintain') plan_ = { label: dow < 5 ? 'BTS · flashcards' : 'Repos', kind: 'rest' };
+			if (w.kind === 'maintain') plan_ = { label: dow < 5 ? 'BTS · flashcards' : 'Rest', kind: 'rest' };
 			else if (dow <= 2) {
 				if (w.days) {
 					const n = w.days[1] - w.days[0] + 1;
 					const per = Math.ceil(n / 3);
 					const a = w.days[0] + dow * per, b = Math.min(w.days[1], a + per - 1);
-					plan_ = a <= w.days[1] ? { label: a === b ? `Vidéo J${a}` : `Vidéos J${a}–${b}`, kind: 'video' } : { label: 'Notes + flashcards', kind: 'review' };
-				} else plan_ = { label: w.kind === 'exam' ? 'Révision ciblée' : w.title, kind: w.kind === 'light' ? 'rest' : 'review' };
-			} else if (dow <= 4) plan_ = { label: w.kind === 'learn' ? 'Labs Packet Tracer' : w.kind === 'exam' && dow === 4 ? 'Examen blanc' : 'Labs + QCM', kind: w.kind === 'exam' && dow === 4 ? 'exam' : 'lab' };
-			else plan_ = plan.isSolo(wi) ? { label: 'Seul · sieste', kind: 'rest' } : { label: dow === 5 ? 'Session longue' : 'QCM semaine', kind: 'long' };
-			if (dow === 0) events.push({ label: `S${wi + 1} · ${w.title}`, tone: 'week' });
-			if (dow === 4) for (const x of w.extra) if (/Examen final Netacad/.test(x)) events.push({ label: x.replace(/ :.*/, ''), tone: 'amber' });
+					plan_ = a <= w.days[1] ? { label: a === b ? `Video D${a}` : `Videos D${a}–${b}`, kind: 'video' } : { label: 'Notes + flashcards', kind: 'review' };
+				} else plan_ = { label: w.kind === 'exam' ? 'Targeted review' : w.title, kind: w.kind === 'light' ? 'rest' : 'review' };
+			} else if (dow <= 4) plan_ = { label: w.kind === 'learn' ? 'Packet Tracer labs' : w.kind === 'exam' && dow === 4 ? 'Practice exam' : 'Labs + quiz', kind: w.kind === 'exam' && dow === 4 ? 'exam' : 'lab' };
+			else plan_ = plan.isSolo(wi) ? { label: 'Alone · nap time', kind: 'rest' } : { label: dow === 5 ? 'Long session' : 'Weekly quiz', kind: 'long' };
+			if (dow === 0) events.push({ label: `W${wi + 1} · ${w.title}`, tone: 'week' });
+			if (dow === 4) for (const x of w.extra) if (/Netacad .* final exam/.test(x)) events.push({ label: x.replace(/:.*/, ''), tone: 'amber' });
 		}
-		for (const mk of mocks) if (mk.date === key) events.push({ label: `Blanc ${mk.score} %`, tone: mk.score >= 85 ? 'green' : 'amber' });
-		if (key === plan.examDate) events.push({ label: 'EXAMEN CCNA', tone: 'red' });
+		for (const mk of mocks) if (mk.date === key) events.push({ label: `Practice ${mk.score}%`, tone: mk.score >= 85 ? 'green' : 'amber' });
+		if (key === plan.examDate) events.push({ label: 'CCNA EXAM', tone: 'red' });
 		return { key, day: d.getDate(), inMonth: d.getMonth() === base.getMonth(), dow, plan: plan_, events, act: act.get(key) ?? null };
 	});
 

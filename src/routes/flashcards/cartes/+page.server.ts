@@ -12,8 +12,8 @@ export const actions = {
 		const id = Number(f.get('id'));
 		const front = String(f.get('front') ?? '').trim();
 		const back = String(f.get('back') ?? '').trim();
-		if (!front || !back) return fail(400, { error: 'Recto et verso obligatoires.' });
-		updateCard(id, front, back, String(f.get('topic') ?? '') || null, String(f.get('deck') ?? 'Concepts'));
+		if (!front || !back) return fail(400, { error: 'Front and back are both required.' });
+		updateCard(id, front, back, String(f.get('topic') ?? '') || null, String(f.get('deck') ?? 'My cards'));
 	},
 	delete: async ({ request }) => deleteCard(Number((await request.formData()).get('id'))),
 	suspend: async ({ request }) => {

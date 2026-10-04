@@ -25,8 +25,8 @@ export const actions = {
 		const f = await request.formData();
 		const date = String(f.get('date') ?? '');
 		const score = Math.round(Number(f.get('score')));
-		if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !(score >= 0 && score <= 100)) return fail(400, { error: 'Date ou score invalide.' });
-		addMock(date, String(f.get('source') ?? 'Autre'), score);
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !(score >= 0 && score <= 100)) return fail(400, { error: 'Invalid date or score.' });
+		addMock(date, String(f.get('source') ?? 'Other'), score);
 	},
 	deleteMock: async ({ request }) => deleteMock(Number((await request.formData()).get('id')))
 };

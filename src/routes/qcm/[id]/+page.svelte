@@ -16,7 +16,7 @@
 	const exam = $derived(data.attempt.mode === 'exam');
 	const answeredCount = $derived(Object.keys(answers).length);
 
-	// Chrono du mode examen : 72 s par question (120 min pour ~100 questions).
+	// Exam mode timer: 72 s per question (120 min for ~100 questions).
 	const limit = data.questions.length * 72;
 	let left = $state(limit - Math.floor((Date.now() - new Date(data.attempt.startedAt).getTime()) / 1000));
 	onMount(() => {
@@ -59,12 +59,12 @@
 	const score = $derived(data.attempt.total ? Math.round((100 * data.attempt.correct) / data.attempt.total) : 0);
 </script>
 
-<svelte:head><title>QCM · Objectif CCNA</title></svelte:head>
+<svelte:head><title>Quiz · CCNA Goal</title></svelte:head>
 
 <div class="stack quiz">
 	{#if !data.attempt.finished}
 		<header class="row">
-			<a class="btn small ghost" href="/qcm">← QCM</a>
+			<a class="btn small ghost" href="/qcm">← Quiz</a>
 			<span class="spacer"></span>
 			<span class="mono small">Question {i + 1}/{qs.length}</span>
 			{#if exam}<span class="pill {left < 300 ? 'red' : ''} mono">{mmss(left)}</span>{/if}
@@ -84,38 +84,38 @@
 				{/each}
 			</div>
 			{#if feedback}
-				<div class="flash {feedback.correct ? '' : 'err'}"><b>{feedback.correct ? 'Correct.' : 'Incorrect.'}</b> Bonne réponse : {feedback.answer.map((a) => L[a]).join(', ')}</div>
+				<div class="flash {feedback.correct ? '' : 'err'}"><b>{feedback.correct ? 'Correct.' : 'Incorrect.'}</b> Right answer: {feedback.answer.map((a) => L[a]).join(', ')}</div>
 				{#if q.explanation}
-					<button class="btn ghost small" onclick={() => (showFr = !showFr)}>{showFr ? 'Masquer' : 'Voir'} l'explication</button>
-					{#if showFr}<p class="expl">{q.explanation}</p>{/if}
+					<button class="btn ghost small" onclick={() => (showFr = !showFr)}>{showFr ? 'Hide' : 'Show'} the explanation (FR)</button>
+					{#if showFr}<p class="expl" lang="fr">{q.explanation}</p>{/if}
 				{/if}
-				<div class="row"><span class="spacer"></span><button class="btn primary" onclick={next}>{i < qs.length - 1 ? 'Question suivante' : 'Voir le résultat'}</button></div>
+				<div class="row"><span class="spacer"></span><button class="btn primary" onclick={next}>{i < qs.length - 1 ? 'Next question' : 'See the result'}</button></div>
 			{:else}
 				<div class="row">
-					{#if exam}<button class="btn ghost small" onclick={finish}>Terminer maintenant</button>{/if}
+					{#if exam}<button class="btn ghost small" onclick={finish}>Finish now</button>{/if}
 					<span class="spacer"></span>
-					<button class="btn primary" onclick={submit} disabled={!picked.length || busy || (q.n > 1 && picked.length !== q.n)}>{exam ? 'Valider et continuer' : 'Valider'}</button>
+					<button class="btn primary" onclick={submit} disabled={!picked.length || busy || (q.n > 1 && picked.length !== q.n)}>{exam ? 'Submit and continue' : 'Submit'}</button>
 				</div>
 			{/if}
 		</div>
 	{:else}
-		<header class="row"><a class="btn small ghost" href="/qcm">← QCM</a><span class="spacer"></span><a class="btn primary small" href="/qcm">Nouveau QCM</a></header>
+		<header class="row"><a class="btn small ghost" href="/qcm">← Quiz</a><span class="spacer"></span><a class="btn primary small" href="/qcm">New quiz</a></header>
 		<div class="card result">
-			<span class="pill {score >= 85 ? 'green' : score >= 70 ? 'amber' : 'red'}">{data.attempt.mode === 'exam' ? 'Examen' : 'Entraînement'}</span>
-			<h1 class="mono">{data.attempt.correct}/{data.attempt.total} · {score} %</h1>
-			<p class="muted">{score >= 85 ? 'Objectif atteint sur cette série.' : score >= 70 ? 'Pas mal. Relis les explications ci-dessous et passe les thèmes ratés en orange.' : 'Ces thèmes sont à reprendre : revois la vidéo correspondante puis refais un QCM ciblé.'} Durée : {Math.round((data.attempt.duration ?? 0) / 60)} min.</p>
+			<span class="pill {score >= 85 ? 'green' : score >= 70 ? 'amber' : 'red'}">{data.attempt.mode === 'exam' ? 'Exam' : 'Practice'}</span>
+			<h1 class="mono">{data.attempt.correct}/{data.attempt.total} · {score}%</h1>
+			<p class="muted">{score >= 85 ? 'Goal reached on this set.' : score >= 70 ? 'Not bad. Read the explanations below and set the missed topics to amber.' : 'These topics need more work: rewatch the matching video, then take a targeted quiz.'} Time: {Math.round((data.attempt.duration ?? 0) / 60)} min.</p>
 		</div>
 		{#each qs as qq, k}
 			{@const a = data.answers[qq.id]}
 			<div class="card review" class:wrong={!a?.correct}>
-				<div class="row small"><span class="mono muted">{k + 1}. {qq.topic}</span><span class="spacer"></span><span class="pill {a?.correct ? 'green' : 'red'}">{a ? (a.correct ? 'Juste' : 'Faux') : 'Sans réponse'}</span></div>
+				<div class="row small"><span class="mono muted">{k + 1}. {qq.topic}</span><span class="spacer"></span><span class="pill {a?.correct ? 'green' : 'red'}">{a ? (a.correct ? 'Correct' : 'Wrong') : 'No answer'}</span></div>
 				<p class="stem small-stem">{qq.stem}</p>
 				<ul class="ans">
 					{#each qq.options as o, j}
-						<li class:ok={qq.answer.includes(j)} class:ko={a?.chosen.includes(j) && !qq.answer.includes(j)}><span class="mono">{L[j]}</span> {o}{#if a?.chosen.includes(j)} <span class="muted small">(ton choix)</span>{/if}</li>
+						<li class:ok={qq.answer.includes(j)} class:ko={a?.chosen.includes(j) && !qq.answer.includes(j)}><span class="mono">{L[j]}</span> {o}{#if a?.chosen.includes(j)} <span class="muted small">(your answer)</span>{/if}</li>
 					{/each}
 				</ul>
-				{#if qq.explanation}<p class="expl">{qq.explanation}</p>{/if}
+				{#if qq.explanation}<p class="expl" lang="fr">{qq.explanation}</p>{/if}
 			</div>
 		{/each}
 	{/if}

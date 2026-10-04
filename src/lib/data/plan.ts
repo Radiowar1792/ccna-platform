@@ -1,5 +1,6 @@
-// Planning de révision : 39 semaines, du lundi 5 octobre 2026 à fin juin 2027.
-// "j" = jours du cours Jeremy's IT Lab (voir videos.ts).
+// Study plan: 39 weeks, from Monday 5 October 2026 to the end of June 2027.
+// "days" = Days of the Jeremy's IT Lab course (see videos.ts).
+// WARNING: task order matters (task_done.idx). Add new tasks at the END of `extra` only.
 
 export const PLAN_START = '2026-10-05';
 export const DEFAULT_EXAM_DATE = '2027-06-30';
@@ -16,45 +17,45 @@ export interface Week {
 }
 
 export const WEEKS: Week[] = [
-	{ phase: 'Démarrage', kind: 'setup', title: 'Finir le parcours Network Technician', desc: 'Module Support et sécurité + examen du parcours', extra: ['Terminer le module Support et sécurité', "Passer l'examen Network Technician Career Path → badge", 'Vérifier Packet Tracer à jour (compte Netacad)'] },
-	{ phase: 'Démarrage', kind: 'setup', days: [1, 3], title: 'Mise en place + bases', desc: 'Appareils, câbles, OSI (révision rapide)', extra: ["Demander à l'école : inscription aux cours Netacad CCNA 1/2/3 (ITN, SRWE, ENSA)", "Faire l'auto-évaluation : mettre chaque thème en LED dans Thèmes"] },
-	{ phase: 'Bloc 1 · Fondamentaux', kind: 'learn', days: [4, 6], title: 'CLI et switching Ethernet', desc: 'Intro CLI, Ethernet LAN switching 1 et 2', extra: ['Lab : config de base switch (hostname, mots de passe, banner)'] },
-	{ phase: 'Bloc 1 · Fondamentaux', kind: 'learn', days: [7, 9], title: 'Adressage IPv4', desc: 'IPv4 parties 1 et 2, interfaces de switch', extra: ['Lab : adresser un petit réseau à 2 routeurs'] },
-	{ phase: 'Bloc 1 · Fondamentaux', kind: 'learn', days: [10, 12], title: 'Routage : les bases', desc: "En-tête IPv4, routage, vie d'un paquet", extra: ['Savoir lire « show ip route » ligne par ligne'] },
-	{ phase: 'Bloc 1 · Fondamentaux', kind: 'learn', days: [13, 15], title: 'Subnetting + VLSM', desc: 'La semaine la plus importante du bloc', extra: ['Subnetting : 1 session par jour cette semaine', 'Objectif : un /26 ou /27 calculé en moins de 30 s'] },
-	{ phase: 'Bloc 2 · Switching', kind: 'learn', days: [16, 18], title: 'VLAN', desc: 'VLAN 1 à 3, trunks 802.1Q, inter-VLAN', extra: ['Lab : router-on-a-stick + SVI sur switch L3'] },
-	{ phase: 'Bloc 2 · Switching', kind: 'learn', days: [19, 21], title: 'DTP/VTP et STP', desc: 'DTP, VTP, Spanning Tree 1 et 2', extra: ['Savoir trouver le root bridge et les rôles de ports à la main'] },
-	{ phase: 'Bloc 2 · Switching', kind: 'learn', days: [22, 23], title: 'RSTP et EtherChannel', desc: 'Rapid PVST+, PortFast, BPDU guard, LACP', extra: ['Lab : EtherChannel LACP L2 + L3', 'QCM bilan Switching (domaine 2.0)'] },
-	{ phase: 'Bloc 3 · Routage', kind: 'learn', days: [24, 26], title: 'Routage dynamique et OSPF 1', desc: 'Protocoles dynamiques, RIP/EIGRP (survol), OSPF 1', extra: ['Connaître par cœur les distances administratives'] },
-	{ phase: 'Bloc 3 · Routage', kind: 'learn', days: [27, 28], title: 'OSPF 2 et 3', desc: 'Voisins, DR/BDR, router ID, coût', extra: ['Lab : OSPF single-area sur 3 routeurs, sans solution'] },
-	{ phase: 'Vacances de Noël', kind: 'light', title: 'Semaine légère (Noël)', desc: 'Profite de la famille', extra: ['Refaire 1 lab OSPF'] },
-	{ phase: 'Vacances de Noël', kind: 'light', title: 'Semaine légère + bilan', desc: 'Point sur les blocs 1 à 3', extra: ['Examen final Netacad ITN (CCNA 1) : ≥ 70 % au 1er essai', 'Mettre à jour les LED des thèmes'] },
-	{ phase: 'Bloc 3 · Routage', kind: 'learn', days: [29, 30], title: 'FHRP, TCP et UDP', desc: 'HSRP, ports, TCP vs UDP', extra: ['Lab : HSRP entre 2 routeurs'] },
-	{ phase: 'Bloc 3 · Routage', kind: 'learn', days: [31, 33], title: 'IPv6', desc: "Adressage, types d'adresses, EUI-64, routes IPv6", extra: ['Lab : double pile IPv4/IPv6 + route statique IPv6'] },
-	{ phase: 'Bloc 4 · Sécurité et services', kind: 'learn', days: [34, 35], title: 'ACL', desc: 'ACL standard et étendues', extra: ['Lab : 3 ACL étendues sans aide', 'Savoir où placer une ACL (in/out, source/destination)'] },
-	{ phase: 'Bloc 4 · Sécurité et services', kind: 'learn', days: [36, 39], title: 'CDP/LLDP, NTP, DNS, DHCP', desc: "Services d'infrastructure", extra: ['Lab : DHCP sur routeur + ip helper-address'] },
-	{ phase: 'Bloc 4 · Sécurité et services', kind: 'learn', days: [40, 43], title: 'SNMP, Syslog, SSH, FTP/TFTP', desc: 'Gestion et supervision', extra: ['Apprendre les 8 niveaux Syslog (0 à 7)'] },
-	{ phase: 'Bloc 4 · Sécurité et services', kind: 'learn', days: [44, 45], title: 'NAT', desc: 'NAT statique, dynamique, PAT', extra: ['Lab : PAT (overload) + « show ip nat translations »'] },
-	{ phase: 'Bloc 4 · Sécurité et services', kind: 'learn', days: [46, 47], title: 'QoS', desc: 'Classification, marquage, files, policing/shaping', extra: ['Fiche : DSCP EF / AF / CS en 1 page'] },
-	{ phase: 'Bloc 4 · Sécurité et services', kind: 'learn', days: [48, 51], title: 'Sécurité L2', desc: 'Fondamentaux, port security, DHCP snooping, DAI', extra: ['Lab : port security sticky + violation shutdown'] },
-	{ phase: 'Bloc 5 · Archi, Wi-Fi, automatisation', kind: 'learn', days: [52, 54], title: 'Architectures et cloud', desc: 'LAN 2/3 tiers, spine-leaf, WAN, virtualisation', extra: [] },
-	{ phase: 'Bloc 5 · Archi, Wi-Fi, automatisation', kind: 'learn', days: [55, 58], title: 'Wi-Fi', desc: 'Fondamentaux, architectures, sécurité, WLC', extra: ['Examen final Netacad SRWE (CCNA 2) : ≥ 70 % au 1er essai'] },
-	{ phase: 'Bloc 5 · Archi, Wi-Fi, automatisation', kind: 'learn', days: [59, 63], title: 'Automatisation', desc: 'SDN, JSON, REST, Ansible/Terraform + IA (v1.1)', extra: ['Savoir lire un JSON et associer verbes HTTP ↔ CRUD'] },
-	{ phase: 'Révision', kind: 'review', title: 'Révision Switching', desc: 'VLAN, STP, EtherChannel', extra: ['Refaire 3 labs Switching sans solution', 'QCM domaine 2.0 ≥ 80 %'] },
-	{ phase: 'Révision', kind: 'review', title: 'Révision Routage', desc: 'Statique, OSPF, FHRP, IPv6', extra: ['Refaire 3 labs Routage sans solution', 'QCM domaine 3.0 ≥ 80 %'] },
-	{ phase: 'Révision', kind: 'review', title: 'Révision Services, ACL, NAT', desc: 'Domaines 4.0 et 5.0', extra: ['Examen final Netacad ENSA (CCNA 3) : ≥ 70 % au 1er essai', 'Remplir le questionnaire de fin de cours (obligatoire pour le bon)'] },
-	{ phase: 'Examens blancs', kind: 'exam', title: 'Examen blanc n°1', desc: 'Conditions réelles : 2 h, sans notes', extra: ["Passer l'examen blanc CCNA de ENSA", 'Noter le score dans Examens blancs', 'Passer les thèmes ratés en LED orange', 'Demander le bon de réduction sur Netacad'] },
-	{ phase: 'Examens blancs', kind: 'review', title: 'Points faibles', desc: 'Vacances de printemps', extra: ['Revoir les vidéos des thèmes ratés', '2 labs sur le thème le plus faible'] },
-	{ phase: 'Examens blancs', kind: 'exam', title: 'Examen blanc n°2', desc: 'Conditions réelles', extra: ['Examen blanc (mode examen de la plateforme ou PDF)', 'Analyser les erreurs'] },
-	{ phase: 'Période examens BTS', kind: 'maintain', title: 'Mode maintien (BTS)', desc: 'Priorité au BTS', extra: [] },
-	{ phase: 'Période examens BTS', kind: 'maintain', title: 'Mode maintien (BTS)', desc: 'Priorité au BTS', extra: [] },
-	{ phase: 'Période examens BTS', kind: 'maintain', title: 'Mode maintien (BTS)', desc: 'Priorité au BTS', extra: [] },
-	{ phase: 'Dernière ligne droite', kind: 'exam', title: 'Examen blanc n°3 + réservation', desc: 'Si ≥ 80 % : réserve ta date', extra: ['Examen blanc complet', 'Si ≥ 80 % : réserver sur Pearson VUE avec le bon (4 à 5 semaines plus tard)'] },
-	{ phase: 'Dernière ligne droite', kind: 'review', title: 'Points faibles', desc: 'Labs ciblés', extra: ['Labs sur les 3 thèmes encore en orange'] },
-	{ phase: 'Dernière ligne droite', kind: 'exam', title: 'Examen blanc n°4', desc: 'Questions jamais vues, objectif 85 %', extra: ['Passer les questions gardées en réserve', 'Score ≥ 85 % ? Tu es prêt.'] },
-	{ phase: 'Dernière ligne droite', kind: 'review', title: 'Révision finale', desc: 'Fiches et commandes', extra: ['Écrire ta fiche « commandes show » sur 1 page', 'Relire toutes tes notes'] },
-	{ phase: 'Dernière ligne droite', kind: 'final', title: 'Semaine calme', desc: 'On ne charge plus', extra: ['Flashcards + subnetting rapide uniquement', "Vérifier pièce d'identité et convocation Pearson VUE"] },
-	{ phase: 'Examen', kind: 'final', title: 'Examen CCNA 200-301', desc: 'Fin juin / début juillet', extra: ['Bien dormir la veille', 'Passer le CCNA'] }
+	{ phase: 'Getting started', kind: 'setup', title: 'Finish the Network Technician path', desc: 'Network Support and Security module + path exam', extra: ['Finish the Network Support and Security module', 'Pass the Network Technician Career Path exam → badge', 'Update Packet Tracer (Netacad account)'] },
+	{ phase: 'Getting started', kind: 'setup', days: [1, 3], title: 'Setup + basics', desc: 'Devices, cables, OSI (quick review)', extra: ['Ask your school to enroll you in Netacad CCNA 1/2/3 (ITN, SRWE, ENSA)', 'Self-assessment: set an LED for every topic on the Topics page'] },
+	{ phase: 'Block 1 · Fundamentals', kind: 'learn', days: [4, 6], title: 'CLI and Ethernet switching', desc: 'CLI intro, Ethernet LAN switching parts 1 and 2', extra: ['Lab: basic switch config (hostname, passwords, banner)'] },
+	{ phase: 'Block 1 · Fundamentals', kind: 'learn', days: [7, 9], title: 'IPv4 addressing', desc: 'IPv4 parts 1 and 2, switch interfaces', extra: ['Lab: address a small network with 2 routers'] },
+	{ phase: 'Block 1 · Fundamentals', kind: 'learn', days: [10, 12], title: 'Routing basics', desc: 'IPv4 header, routing fundamentals, life of a packet', extra: ['Be able to read "show ip route" line by line'] },
+	{ phase: 'Block 1 · Fundamentals', kind: 'learn', days: [13, 15], title: 'Subnetting + VLSM', desc: 'The most important week of the block', extra: ['Subnetting: one session every day this week', 'Goal: solve a /26 or /27 in under 30 seconds'] },
+	{ phase: 'Block 2 · Switching', kind: 'learn', days: [16, 18], title: 'VLAN', desc: 'VLANs parts 1 to 3, 802.1Q trunks, inter-VLAN routing', extra: ['Lab: router-on-a-stick + SVIs on a L3 switch'] },
+	{ phase: 'Block 2 · Switching', kind: 'learn', days: [19, 21], title: 'DTP/VTP and STP', desc: 'DTP, VTP, Spanning Tree parts 1 and 2', extra: ['Find the root bridge and port roles by hand'] },
+	{ phase: 'Block 2 · Switching', kind: 'learn', days: [22, 23], title: 'RSTP and EtherChannel', desc: 'Rapid PVST+, PortFast, BPDU guard, LACP', extra: ['Lab: LACP EtherChannel, L2 + L3', 'Review quiz: Switching (domain 2.0)'] },
+	{ phase: 'Block 3 · Routing', kind: 'learn', days: [24, 26], title: 'Dynamic routing and OSPF part 1', desc: 'Dynamic protocols, RIP/EIGRP (overview), OSPF part 1', extra: ['Learn the administrative distances by heart'] },
+	{ phase: 'Block 3 · Routing', kind: 'learn', days: [27, 28], title: 'OSPF parts 2 and 3', desc: 'Neighbors, DR/BDR, router ID, cost', extra: ['Lab: single-area OSPF on 3 routers, without the solution'] },
+	{ phase: 'Christmas holidays', kind: 'light', title: 'Light week (Christmas)', desc: 'Enjoy time with your family', extra: ['Redo one OSPF lab'] },
+	{ phase: 'Christmas holidays', kind: 'light', title: 'Light week + review', desc: 'Check your progress on blocks 1 to 3', extra: ['Netacad ITN final exam (CCNA 1): ≥ 70% on the first attempt', 'Update the topic LEDs'] },
+	{ phase: 'Block 3 · Routing', kind: 'learn', days: [29, 30], title: 'FHRP, TCP and UDP', desc: 'HSRP, port numbers, TCP vs UDP', extra: ['Lab: HSRP between 2 routers'] },
+	{ phase: 'Block 3 · Routing', kind: 'learn', days: [31, 33], title: 'IPv6', desc: 'Addressing, address types, EUI-64, IPv6 routes', extra: ['Lab: dual stack IPv4/IPv6 + IPv6 static route'] },
+	{ phase: 'Block 4 · Security and services', kind: 'learn', days: [34, 35], title: 'ACL', desc: 'Standard and extended ACLs', extra: ['Lab: 3 extended ACLs without help', 'Know where to place an ACL (in/out, near source/destination)'] },
+	{ phase: 'Block 4 · Security and services', kind: 'learn', days: [36, 39], title: 'CDP/LLDP, NTP, DNS, DHCP', desc: 'Infrastructure services', extra: ['Lab: DHCP on a router + ip helper-address'] },
+	{ phase: 'Block 4 · Security and services', kind: 'learn', days: [40, 43], title: 'SNMP, Syslog, SSH, FTP/TFTP', desc: 'Management and monitoring', extra: ['Learn the 8 Syslog levels (0 to 7)'] },
+	{ phase: 'Block 4 · Security and services', kind: 'learn', days: [44, 45], title: 'NAT', desc: 'Static NAT, dynamic NAT, PAT', extra: ['Lab: PAT (overload) + "show ip nat translations"'] },
+	{ phase: 'Block 4 · Security and services', kind: 'learn', days: [46, 47], title: 'QoS', desc: 'Classification, marking, queuing, policing/shaping', extra: ['Cheat sheet: DSCP EF / AF / CS on one page'] },
+	{ phase: 'Block 4 · Security and services', kind: 'learn', days: [48, 51], title: 'Layer 2 security', desc: 'Security fundamentals, port security, DHCP snooping, DAI', extra: ['Lab: port security sticky + violation shutdown'] },
+	{ phase: 'Block 5 · Architecture, wireless, automation', kind: 'learn', days: [52, 54], title: 'Architectures and cloud', desc: '2/3-tier LANs, spine-leaf, WAN, virtualization', extra: [] },
+	{ phase: 'Block 5 · Architecture, wireless, automation', kind: 'learn', days: [55, 58], title: 'Wi-Fi', desc: 'Fundamentals, architectures, security, WLC', extra: ['Netacad SRWE final exam (CCNA 2): ≥ 70% on the first attempt'] },
+	{ phase: 'Block 5 · Architecture, wireless, automation', kind: 'learn', days: [59, 63], title: 'Automation', desc: 'SDN, JSON, REST, Ansible/Terraform + AI (v1.1)', extra: ['Read JSON and match HTTP verbs ↔ CRUD'] },
+	{ phase: 'Review', kind: 'review', title: 'Review: Switching', desc: 'VLAN, STP, EtherChannel', extra: ['Redo 3 switching labs without the solution', 'Quiz domain 2.0 ≥ 80%'] },
+	{ phase: 'Review', kind: 'review', title: 'Review: Routing', desc: 'Static, OSPF, FHRP, IPv6', extra: ['Redo 3 routing labs without the solution', 'Quiz domain 3.0 ≥ 80%'] },
+	{ phase: 'Review', kind: 'review', title: 'Review: Services, ACL, NAT', desc: 'Domains 4.0 and 5.0', extra: ['Netacad ENSA final exam (CCNA 3): ≥ 70% on the first attempt', 'Fill in the end-of-course survey (required for the voucher)'] },
+	{ phase: 'Practice exams', kind: 'exam', title: 'Practice exam #1', desc: 'Real conditions: 2 hours, no notes', extra: ['Take the ENSA CCNA practice exam', 'Log the score on the Stats page', 'Set the failed topics to amber', 'Request the discount voucher on Netacad'] },
+	{ phase: 'Practice exams', kind: 'review', title: 'Weak points', desc: 'Spring holidays', extra: ['Rewatch the videos of the failed topics', '2 labs on your weakest topic'] },
+	{ phase: 'Practice exams', kind: 'exam', title: 'Practice exam #2', desc: 'Real conditions', extra: ['Practice exam (platform exam mode or PDF)', 'Analyze your mistakes'] },
+	{ phase: 'BTS exam period', kind: 'maintain', title: 'Maintenance mode (BTS)', desc: 'BTS comes first', extra: [] },
+	{ phase: 'BTS exam period', kind: 'maintain', title: 'Maintenance mode (BTS)', desc: 'BTS comes first', extra: [] },
+	{ phase: 'BTS exam period', kind: 'maintain', title: 'Maintenance mode (BTS)', desc: 'BTS comes first', extra: [] },
+	{ phase: 'Final stretch', kind: 'exam', title: 'Practice exam #3 + booking', desc: 'If ≥ 80%: book your exam date', extra: ['Full practice exam', 'If ≥ 80%: book on Pearson VUE with the voucher (4 to 5 weeks later)'] },
+	{ phase: 'Final stretch', kind: 'review', title: 'Weak points', desc: 'Targeted labs', extra: ['Labs on the 3 topics still in amber'] },
+	{ phase: 'Final stretch', kind: 'exam', title: 'Practice exam #4', desc: 'Never-seen questions, goal 85%', extra: ['Use the questions you kept in reserve', 'Score ≥ 85%? You are ready.'] },
+	{ phase: 'Final stretch', kind: 'review', title: 'Final review', desc: 'Cheat sheets and commands', extra: ['Write your one-page "show commands" cheat sheet', 'Reread all your notes'] },
+	{ phase: 'Final stretch', kind: 'final', title: 'Quiet week', desc: 'No heavy studying any more', extra: ['Flashcards + quick subnetting only', 'Check your ID and Pearson VUE confirmation'] },
+	{ phase: 'Exam', kind: 'final', title: 'CCNA 200-301 exam', desc: 'End of June / early July', extra: ['Sleep well the night before', 'Pass the CCNA'] }
 ];
 
 export interface Task {
@@ -66,33 +67,33 @@ export interface Task {
 export function tasksFor(i: number, solo: boolean): Task[] {
 	const w = WEEKS[i];
 	const list: Task[] = [];
-	const dayRange = w.days ? `jours ${w.days[0]} à ${w.days[1]}` : '';
+	const dayRange = w.days ? `Days ${w.days[0]}–${w.days[1]}` : '';
 	if (w.kind === 'learn') {
-		list.push({ when: 'Lun–Mer', text: `Temps morts en entreprise : vidéos Jeremy's IT Lab, ${dayRange}, avec prise de notes`, link: '/videos' });
-		list.push({ when: 'Jeu–Ven', text: "Temps morts à l'école : labs Packet Tracer des vidéos de la semaine (+ module Netacad)" });
+		list.push({ when: 'Mon–Wed', text: `Free time at work: Jeremy's IT Lab videos, ${dayRange}, + lesson and mini quiz`, link: '/videos' });
+		list.push({ when: 'Thu–Fri', text: 'Free time at school: Packet Tracer labs from this week\'s videos (+ Netacad module)' });
 	} else if (w.kind === 'setup' && w.days) {
-		list.push({ when: 'Lun–Mer', text: `Vidéos Jeremy's IT Lab, ${dayRange} (en accéléré, tu connais déjà)`, link: '/videos' });
+		list.push({ when: 'Mon–Wed', text: `Jeremy's IT Lab videos, ${dayRange} (at 1.25×, you already know this)`, link: '/videos' });
 	}
-	w.extra.forEach((t) => list.push({ when: 'Semaine', text: t }));
+	w.extra.forEach((t) => list.push({ when: 'This week', text: t }));
 	if (w.kind === 'maintain') {
-		list.push({ when: 'Chaque jour', text: 'Flashcards 10 min, pas plus', link: '/flashcards' });
-		list.push({ when: '2× / sem.', text: 'Subnetting 10 min pour garder le rythme', link: '/subnetting' });
+		list.push({ when: 'Every day', text: 'Flashcards, 10 min max', link: '/flashcards' });
+		list.push({ when: '2× / week', text: 'Subnetting 10 min to keep the pace', link: '/subnetting' });
 	} else if (i < WEEKS.length - 1) {
-		list.push({ when: 'Chaque jour', text: 'Flashcards 15 min (téléphone, dans les temps morts)', link: '/flashcards' });
-		if (w.kind !== 'final') list.push({ when: '3× / sem.', text: 'Subnetting 10 min', link: '/subnetting' });
+		list.push({ when: 'Every day', text: 'Flashcards 15 min (on your phone, in free time)', link: '/flashcards' });
+		if (w.kind !== 'final') list.push({ when: '3× / week', text: 'Subnetting 10 min', link: '/subnetting' });
 	}
 	if (w.kind !== 'final') {
 		list.push(
 			solo
-				? { when: 'Week-end', text: 'Week-end seul avec le petit : 1 session courte pendant la sieste (flashcards + relire tes notes). Pas plus.' }
+				? { when: 'Weekend', text: 'Weekend alone with your son: one short session during his nap (flashcards + reread your notes). That is enough.' }
 				: {
-						when: 'Week-end',
+						when: 'Weekend',
 						text:
 							w.kind === 'exam'
-								? "Week-end : refaire au calme les questions ratées de l'examen blanc"
+								? 'Weekend: calmly redo the questions you missed in the practice exam'
 								: w.kind === 'maintain'
-									? 'Week-end : repos CCNA, BTS d’abord'
-									: 'Week-end : 2 sessions de 1 h 30 → 1 lab refait sans solution + QCM de la semaine',
+									? 'Weekend: no CCNA, BTS first'
+									: 'Weekend: 2 sessions of 1.5 h → redo one lab without the solution + weekly quiz',
 						link: w.kind === 'maintain' ? undefined : '/qcm'
 					}
 		);
@@ -100,7 +101,7 @@ export function tasksFor(i: number, solo: boolean): Task[] {
 	return list;
 }
 
-/** Index de semaine (0..38) pour une date donnée (YYYY-MM-DD ou Date). */
+/** Week index (0..38) for a given date. */
 export function weekIndexOf(d: Date): number {
 	const start = new Date(PLAN_START + 'T00:00:00');
 	const diff = Math.floor((d.getTime() - start.getTime()) / (7 * 86400000));
@@ -113,7 +114,7 @@ export function weekStart(i: number): Date {
 	return d;
 }
 
-/** Semaine paire = week-end seul, sauf si soloStartsOdd est vrai. */
+/** Even week = weekend alone, unless soloStartsOdd is true. */
 export function defaultSolo(i: number, soloStartsOdd: boolean): boolean {
 	return (i % 2 === 0) === !soloStartsOdd;
 }

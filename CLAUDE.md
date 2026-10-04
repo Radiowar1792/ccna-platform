@@ -6,7 +6,7 @@ Plateforme perso de révision CCNA 200-301 de Batiste (BTS SIO SISR), auto-hébe
 
 L'essentiel :
 - SvelteKit 2 + Svelte 5 (runes) + TypeScript, SQLite via `node:sqlite`, flashcards avec `ts-fsrs`.
-- Interface en français. QCM et recto des cartes en anglais, explications en français. Questions originales uniquement, jamais de dumps.
+- Interface en ANGLAIS (Batiste apprend l'anglais technique). Seules les explications détaillées restent en français, avec les termes techniques en anglais. Questions originales uniquement, jamais de dumps.
 - SQL uniquement dans `src/lib/server/repo.ts`. Pour changer le schéma, AJOUTE une migration dans `db.ts` sans jamais en modifier une existante.
 - Avant de commiter : `npm run check` puis `bash scripts/smoke.sh`.
 - Commits au format `feat(scope): description en français`, auteur `Batiste <210405393+Radiowar1792@users.noreply.github.com>`.

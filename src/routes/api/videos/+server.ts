@@ -14,15 +14,15 @@ export async function POST({ request }) {
 		try {
 			return json(await syncPlaylist());
 		} catch (e) {
-			throw error(502, `Synchronisation impossible : ${(e as Error).message}`);
+			throw error(502, `Sync failed: ${(e as Error).message}`);
 		}
 	}
 	const day = Number(b.day);
-	if (!(day >= 1 && day <= 63)) throw error(400, 'Jour invalide');
+	if (!(day >= 1 && day <= 63)) throw error(400, 'Invalid day');
 	if (typeof b.watched === 'boolean') setWatched(day, b.watched);
 	if (typeof b.url === 'string') {
 		const id = b.url.trim() ? parseId(b.url.trim()) : null;
-		if (b.url.trim() && !id) throw error(400, 'Lien YouTube non reconnu');
+		if (b.url.trim() && !id) throw error(400, 'YouTube link not recognized');
 		setVideoId(day, id);
 	}
 	return json({ ok: true });

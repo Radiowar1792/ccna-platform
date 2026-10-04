@@ -2,7 +2,7 @@
 	import { post } from '$lib/api';
 	import { onMount } from 'svelte';
 	let { data } = $props();
-	// File locale : une carte notée "À revoir" revient en fin de session.
+	// Local queue: a card rated "Again" comes back at the end of the session.
 	let queue = $state([...data.queue]);
 	let flipped = $state(false);
 	let done = $state(0);
@@ -38,31 +38,31 @@
 		return () => window.removeEventListener('keydown', onKey);
 	});
 	const BTN = [
-		{ r: 1, label: 'À revoir', cls: 'again' },
-		{ r: 2, label: 'Difficile', cls: 'hard' },
-		{ r: 3, label: 'Bien', cls: 'good' },
-		{ r: 4, label: 'Facile', cls: 'easy' }
+		{ r: 1, label: 'Again', cls: 'again' },
+		{ r: 2, label: 'Hard', cls: 'hard' },
+		{ r: 3, label: 'Good', cls: 'good' },
+		{ r: 4, label: 'Easy', cls: 'easy' }
 	] as const;
 </script>
 
-<svelte:head><title>Révision · Flashcards</title></svelte:head>
+<svelte:head><title>Review · Flashcards</title></svelte:head>
 
 <div class="stack rev">
 	<header class="row">
-		<a class="btn small ghost" href="/flashcards">← Paquets</a>
+		<a class="btn small ghost" href="/flashcards">← Decks</a>
 		<span class="spacer"></span>
-		<span class="mono small muted">{data.deck ?? 'Tous les paquets'} · {done} faites · {queue.length} restantes</span>
+		<span class="mono small muted">{data.deck ?? 'All decks'} · {done} done · {queue.length} left</span>
 	</header>
 
 	{#if card}
-		<button class="fc" class:flipped onclick={flip} aria-label={flipped ? 'Carte retournée' : 'Retourner la carte'}>
-			<span class="row small muted"><span class="pill light">{card.deck}</span>{#if card.topic}<span class="mono">{card.topic}</span>{/if}{#if card.state === 0}<span class="pill">Nouvelle</span>{/if}</span>
+		<button class="fc" class:flipped onclick={flip} aria-label={flipped ? 'Card flipped' : 'Flip the card'}>
+			<span class="row small muted"><span class="pill light">{card.deck}</span>{#if card.topic}<span class="mono">{card.topic}</span>{/if}{#if card.state === 0}<span class="pill">New</span>{/if}</span>
 			<span class="front">{card.front}</span>
 			{#if flipped}
 				<hr />
 				<span class="back">{card.back}</span>
 			{:else}
-				<span class="hint small muted">Clique ou appuie sur <kbd>Espace</kbd> pour voir la réponse</span>
+				<span class="hint small muted">Click or press <kbd>Space</kbd> to show the answer</span>
 			{/if}
 		</button>
 		{#if flipped}
@@ -78,9 +78,9 @@
 		{/if}
 	{:else}
 		<div class="card done">
-			<h2>Session terminée</h2>
-			<p class="muted">{done} cartes révisées{again ? `, dont ${again} revues une seconde fois` : ''}. Reviens demain : l'algorithme a planifié les prochaines révisions.</p>
-			<div class="row"><a class="btn primary" href="/">Retour à l'accueil</a><a class="btn" href="/qcm">Enchaîner sur un QCM</a></div>
+			<h2>Session complete</h2>
+			<p class="muted">{done} cards reviewed{again ? `, ${again} of them seen twice` : ''}. Come back tomorrow: the algorithm has scheduled your next reviews.</p>
+			<div class="row"><a class="btn primary" href="/">Back to home</a><a class="btn" href="/qcm">Take a quiz next</a></div>
 		</div>
 	{/if}
 </div>

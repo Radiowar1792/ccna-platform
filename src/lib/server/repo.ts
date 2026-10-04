@@ -233,6 +233,18 @@ export function addQuestion(topic: string, stem: string, options: string[], answ
 	run('INSERT INTO questions (topic, stem, options, answer, explanation, created_at) VALUES (?, ?, ?, ?, ?, ?)', topic, stem, JSON.stringify(options), JSON.stringify(answer), explanation, new Date().toISOString());
 }
 
+/* ---------- mini-QCM des leçons vidéo ---------- */
+export function saveLessonQuiz(day: number, correct: number, total: number) {
+	run('INSERT INTO lesson_quiz (day, correct, total, at) VALUES (?, ?, ?, ?)', day, correct, total, new Date().toISOString());
+}
+/** Meilleur score par Day. */
+export function lessonScores(): Record<number, { best: number; total: number; tries: number }> {
+	const out: Record<number, { best: number; total: number; tries: number }> = {};
+	for (const r of all('SELECT day, MAX(correct) AS best, MAX(total) AS total, COUNT(*) AS tries FROM lesson_quiz GROUP BY day'))
+		out[r.day] = { best: r.best, total: r.total, tries: r.tries };
+	return out;
+}
+
 /* ---------- examens blancs, sessions, subnetting ---------- */
 export const listMocks = () => all('SELECT * FROM mock_exams ORDER BY date');
 export const addMock = (date: string, source: string, score: number) => run('INSERT INTO mock_exams (date, source, score) VALUES (?, ?, ?)', date, source, score);
@@ -273,6 +285,9 @@ export function activity(fromYmd: string, toYmd: string): Map<string, DayActivit
 	byLocalDay(all('SELECT answered_at FROM quiz_answers WHERE answered_at BETWEEN ? AND ?', from, to), 'answered_at', acc, 'questions');
 	byLocalDay(all('SELECT answered_at FROM quiz_answers WHERE correct = 1 AND answered_at BETWEEN ? AND ?', from, to), 'answered_at', acc, 'qok');
 	byLocalDay(all('SELECT at FROM subnet_drills WHERE at BETWEEN ? AND ?', from, to), 'at', acc, 'drills');
+	const lq = all('SELECT at, total, correct FROM lesson_quiz WHERE at BETWEEN ? AND ?', from, to);
+	byLocalDay(lq, 'at', acc, 'questions', 'total');
+	byLocalDay(lq, 'at', acc, 'qok', 'correct');
 	byLocalDay(all('SELECT watched_at FROM videos WHERE watched_at BETWEEN ? AND ?', from, to), 'watched_at', acc, 'videos');
 	for (const r of all('SELECT date, minutes FROM study_sessions WHERE date BETWEEN ? AND ?', fromYmd, toYmd)) {
 		const a = acc.get(r.date) ?? { cards: 0, questions: 0, qok: 0, minutes: 0, drills: 0, videos: 0 };

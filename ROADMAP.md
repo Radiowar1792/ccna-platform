@@ -12,9 +12,14 @@
 - Statistiques : heatmap, domaines, scores, temps par activité, examens blancs
 - Déploiement LXC Proxmox + sauvegarde quotidienne
 
-## v0.2 (prochaines idées)
+## v0.2 (fait)
+- Interface en anglais, explications détaillées en français
+- Leçon en anglais sous chaque vidéo : résumé (avec écoute audio), points clés, commandes, vocabulaire EN→FR, indice, explication FR
+- Mini-QCM de 3 questions par vidéo, meilleur score affiché dans la liste
+
+## v0.3 (prochaines idées)
 - [ ] Import d'un paquet Anki (.apkg), dont le deck de Jeremy
-- [ ] Mode anglais : vocabulaire en contexte, lecture d'énoncés à voix haute, traduction au survol
+- [ ] Anglais : bouton « Listen » sur les questions de QCM, traduction au survol des termes
 - [ ] Questions « Refer to the exhibit » avec sorties `show` (images ou texte)
 - [ ] Labs : liste des labs Packet Tracer par Day, statut fait/à refaire, fichiers .pkt
 - [ ] Notes en Markdown avec aperçu, recherche dans toutes les notes

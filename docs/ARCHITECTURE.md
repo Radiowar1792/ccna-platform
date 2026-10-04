@@ -51,6 +51,8 @@ src/
 │   │   ├── plan.ts                  WEEKS (39 semaines), tasksFor(), weekIndexOf(), defaultSolo()
 │   │   ├── topics.ts                DOMAINS : les 6 domaines et 53 thèmes officiels v1.1
 │   │   ├── videos.ts                COURSE : Day 1 à 63 de Jeremy + thèmes liés, ID de la playlist
+│   │   ├── lessons/                 LESSONS : leçon en anglais par Day (résumé, points clés, vocabulaire EN→FR,
+│   │   │                            commandes, indice, explication FR, mini-QCM de 3 questions), un fichier par bloc
 │   │   ├── cards.ts                 SEED_CARDS : cartes de départ (clé unique `key`)
 │   │   └── questions.ts             SEED_QUESTIONS : questions de départ (clé unique `key`)
 │   ├── server/                      CODE SERVEUR UNIQUEMENT
@@ -59,7 +61,7 @@ src/
 │   │   ├── heat.ts                  Points d'activité par jour pour la heatmap
 │   │   ├── auth.ts                  Mot de passe unique + cookie signé HMAC (60 jours)
 │   │   └── youtube.ts               Synchronisation playlist → videos.youtube_id
-│   └── components/                  WeekCard, Heatmap, LineChart, SessionForm
+│   └── components/                  WeekCard, Heatmap, LineChart, SessionForm, LessonPanel (leçon sous chaque vidéo)
 └── routes/
     ├── +layout.svelte / .server.ts  Barre latérale (barre du haut sur mobile), badge des cartes dues
     ├── +page.*                      Accueil : tâche du jour, résumé, semaine, heatmap, sessions
@@ -105,6 +107,7 @@ Fichier : `DATABASE_PATH` (en dev `./data/ccna.db`, en prod `/var/lib/ccna-platf
 | `mock_exams(date, source, score)` | Examens blancs saisis à la main |
 | `study_sessions(date, minutes, activity, note)` | Temps de travail noté à la main |
 | `subnet_drills(at, correct, ms)` | Exercices de subnetting |
+| `lesson_quiz(day, correct, total, at)` | Résultats des mini-QCM sous les vidéos (migration 2) |
 
 ### Règles
 
@@ -116,15 +119,18 @@ Fichier : `DATABASE_PATH` (en dev `./data/ccna.db`, en prod `/var/lib/ccna-platf
 
 ## 6. Conventions
 
-**Langue**
-- L'interface, les commentaires et les messages de commit sont en **français**.
-- L'énoncé et les réponses des QCM, ainsi que le recto des cartes « Concepts » et « Commandes », sont en **anglais** (comme à l'examen). Les explications et les aides sont en français.
-- Le texte s'adresse à Batiste en le tutoyant, de façon simple et directe.
+**Langue** (depuis la v0.2, Batiste veut progresser en anglais)
+- L'**interface est en anglais** : menus, boutons, titres, messages, planning, thèmes, dates (`en-GB`).
+- Les **explications détaillées restent en français**, avec les termes techniques en anglais : explications des QCM (`why`, `explanation`), bloc « Pas compris ? Explication en français » des leçons, méthode de subnetting. Mets `lang="fr"` sur ces blocs.
+- Énoncés et réponses des QCM, recto des cartes et leçons : anglais simple (niveau B1-B2), phrases courtes.
+- Les commentaires de code et les messages de commit restent en français.
+- Paquet « Tech English » : recto = terme anglais, verso = traduction française.
 
 **Contenu CCNA**
 - **Questions originales uniquement.** Jamais de « dumps » (ExamTopics, etc.).
 - Vérifie chaque fait technique (AD, ports, timers, commandes IOS) avant de l'ajouter. Une erreur dans une flashcard s'apprend par cœur.
 - Chaque question et chaque carte est reliée à un code de thème existant (`1.1` … `6.7`).
+- Leçons (`src/lib/data/lessons/blockN.ts`) : exactement 3 questions de mini-QCM, au moins 4 mots de vocabulaire, un `hint` court en anglais, un `fr` détaillé. Vérifie que le contenu correspond au titre de la vidéo.
 
 **Code**
 - Svelte 5 runes uniquement. Un composant prend ses paramètres avec `let { … } = $props()`.
@@ -206,20 +212,20 @@ Ce qu'il faut savoir sur le LXC :
 
 ## 10. État actuel (à tenir à jour)
 
-**Version : 0.1** (4 octobre 2026)
+**Version : 0.2** (4 octobre 2026)
 
-Fait et testé en local : toutes les pages de la v0.1 (voir `ROADMAP.md`), plus 93 cartes et 53 questions de départ.
+- v0.1 : planning, calendrier, vidéos, flashcards FSRS, QCM, subnetting, thèmes, statistiques, déploiement LXC.
+- v0.2 : interface en anglais. Sous chaque vidéo, une leçon en anglais (résumé avec écoute audio via la synthèse vocale du navigateur, points clés, commandes, vocabulaire EN→FR masquable, indice, explication en français) et un mini-QCM de 3 questions dont le score est enregistré (`lesson_quiz`, migration 2, qui renomme aussi les paquets de cartes en anglais).
+- Déployé et fonctionnel dans le LXC de Batiste. La synchronisation de la playlist lie les 49 premières vidéos ; la récupération au-delà de la 100e vidéo a été corrigée mais reste à confirmer.
 
 Limites connues :
-- **Jamais encore testé dans un vrai LXC.** Les scripts `deploy/*.sh` passent `bash -n`, mais le premier déploiement réel est à surveiller : template Debian 13, NodeSource, durcissement systemd.
-- **Vidéos** : `youtube_id` est vide tant que Batiste n'a pas cliqué sur « Synchroniser la playlist ». Le parsing de la page publique (`youtube.ts → viaPage`) est fragile : il dépend du HTML de YouTube. La voie fiable est `YOUTUBE_API_KEY`.
-- **Titres des Days** : ils ont été écrits de mémoire dans `videos.ts`, la synchronisation les remplace. La numérotation peut être décalée sur la fin du cours.
-- **Compteur de nouvelles cartes** (`reviewQueue`) : la requête qui compte les cartes introduites aujourd'hui est approximative.
-- `node:sqlite` affiche un `ExperimentalWarning`, masqué en prod par `--disable-warning`.
-- Pas encore de tests automatisés au-delà de `scripts/smoke.sh`.
+- **Numérotation des Days** : écrite de mémoire dans `videos.ts`, titres remplacés par la synchronisation. Les leçons suivent cette numérotation : si la playlist réelle est décalée, il faut décaler les leçons aussi.
+- Parsing de la page publique YouTube fragile ; la voie fiable est `YOUTUBE_API_KEY`.
+- Compteur de nouvelles cartes du jour (`reviewQueue`) approximatif.
+- Pas de tests automatisés au-delà de `scripts/smoke.sh`.
 
-**Prochaine étape conseillée** : la v0.2 de `ROADMAP.md`. Par ordre de valeur pour Batiste :
-1. Import Anki `.apkg` (le deck de Jeremy).
-2. Questions « Refer to the exhibit » avec des sorties `show`.
+**Prochaines étapes conseillées** (voir `ROADMAP.md`) :
+1. Import Anki `.apkg` (deck de Jeremy).
+2. Questions « Refer to the exhibit » avec sorties `show`.
 3. Suivi des labs Packet Tracer par Day.
-4. Export et import JSON de toutes les données.
+4. Export / import JSON des données.

@@ -17,7 +17,7 @@ export const actions = {
 		const mode = f.get('mode') === 'exam' ? 'exam' : 'train';
 		const pick = f.get('pick') === 'weak' ? 'weak' : 'random';
 		const qs = pickQuestions(domain, count, pick);
-		if (!qs.length) return fail(400, { error: 'Aucune question pour ce choix.' });
+		if (!qs.length) return fail(400, { error: 'No questions match this choice.' });
 		const id = startAttempt(mode, JSON.stringify({ domain, pick, ids: qs.map((q) => q.id) }), qs.length);
 		throw redirect(303, `/qcm/${id}`);
 	},
@@ -29,7 +29,7 @@ export const actions = {
 		const answer = f.getAll('correct').map(Number).filter((i) => i < options.length);
 		const explanation = String(f.get('explanation') ?? '').trim();
 		if (!ALL_TOPICS.some((t) => t.code === topic) || !stem || options.length < 2 || !answer.length)
-			return fail(400, { addError: 'Il faut un thème, un énoncé, au moins 2 réponses et au moins une bonne réponse cochée.' });
+			return fail(400, { addError: 'You need a topic, a question, at least 2 answers and at least one correct answer ticked.' });
 		addQuestion(topic, stem, options, answer, explanation);
 		return { added: true };
 	}

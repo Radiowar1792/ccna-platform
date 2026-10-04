@@ -18,19 +18,19 @@
 	const level = (v: number) => (v === 0 ? 0 : v < 10 ? 1 : v < 25 ? 2 : v < 50 ? 3 : 4);
 </script>
 
-<div class="hm" role="img" aria-label="Activité des {weeks} dernières semaines">
-	<div class="labels small muted"><span>L</span><span></span><span>M</span><span></span><span>V</span><span></span><span>D</span></div>
+<div class="hm" role="img" aria-label="Activity over the last {weeks} weeks">
+	<div class="labels small muted"><span>M</span><span></span><span>W</span><span></span><span>F</span><span></span><span>S</span></div>
 	<div class="cols">
 		{#each cols as col}
 			<div class="col">
 				{#each col as cell}
-					<span class="sq l{level(cell.v)}" class:future={cell.future} title="{fmtShort(cell.k)} : {cell.v} points d'activité"></span>
+					<span class="sq l{level(cell.v)}" class:future={cell.future} title="{fmtShort(cell.k)} : {cell.v} activity points"></span>
 				{/each}
 			</div>
 		{/each}
 	</div>
 </div>
-<div class="row small muted legend">Moins <span class="sq l0"></span><span class="sq l1"></span><span class="sq l2"></span><span class="sq l3"></span><span class="sq l4"></span> Plus</div>
+<div class="row small muted legend">Less <span class="sq l0"></span><span class="sq l1"></span><span class="sq l2"></span><span class="sq l3"></span><span class="sq l4"></span> More</div>
 
 <style>
 	.hm { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }

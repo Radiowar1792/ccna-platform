@@ -1,4 +1,4 @@
-// Dates "jour" au format YYYY-MM-DD, en heure locale (TZ=Europe/Paris côté serveur).
+// Dates "jour" au format YYYY-MM-DD, en local time (TZ=Europe/Paris côté serveur).
 export function ymd(d: Date = new Date()): string {
 	const y = d.getFullYear();
 	const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -16,9 +16,9 @@ export function addDays(d: Date, n: number): Date {
 	return r;
 }
 
-const short = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
-const long = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-const month = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+const short = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+const long = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+const month = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
 
 export const fmtShort = (d: Date | string) => short.format(typeof d === 'string' ? parseYmd(d) : d);
 export const fmtLong = (d: Date | string) => long.format(typeof d === 'string' ? parseYmd(d) : d);

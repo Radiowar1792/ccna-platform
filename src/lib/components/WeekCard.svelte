@@ -14,17 +14,17 @@
 <div class="card">
 	<div class="row">
 		<span class="pill {tone}">{w.phase}</span>
-		<span class="mono muted small">Semaine {index + 1} · {fmtShort(start)} → {fmtShort(addDays(start, 6))}</span>
+		<span class="mono muted small">Week {index + 1} · {fmtShort(start)} → {fmtShort(addDays(start, 6))}</span>
 	</div>
 	<div class="stack-s" style="gap:2px">
-		<h2>{w.title}{w.days ? ` · Jours ${w.days[0]}–${w.days[1]}` : ''}</h2>
+		<h2>{w.title}{w.days ? ` · Days ${w.days[0]}–${w.days[1]}` : ''}</h2>
 		<p class="muted">{w.desc}</p>
 	</div>
 	<div class="row">
-		<span class="muted small">Ce week-end :</span>
-		<div class="seg" role="group" aria-label="Type de week-end">
-			<button aria-pressed={!solo} onclick={() => post('/api/plan', { op: 'solo', week: index, solo: false })}>Avec ma femme</button>
-			<button aria-pressed={solo} onclick={() => post('/api/plan', { op: 'solo', week: index, solo: true })}>Seul avec le petit</button>
+		<span class="muted small">This weekend:</span>
+		<div class="seg" role="group" aria-label="Weekend type">
+			<button aria-pressed={!solo} onclick={() => post('/api/plan', { op: 'solo', week: index, solo: false })}>With my wife</button>
+			<button aria-pressed={solo} onclick={() => post('/api/plan', { op: 'solo', week: index, solo: true })}>Alone with my son</button>
 		</div>
 	</div>
 	<ul class="tasks">
@@ -33,13 +33,13 @@
 			<li class="task" class:done={on}>
 				<input id="t{index}_{k}" type="checkbox" checked={on} onchange={(e) => post('/api/plan', { op: 'task', week: index, idx: k, on: e.currentTarget.checked })} />
 				<label for="t{index}_{k}"><span class="when">{t.when}</span>{t.text}</label>
-				{#if t.link}<a class="go small" href={t.link}>Ouvrir</a>{/if}
+				{#if t.link}<a class="go small" href={t.link}>Open</a>{/if}
 			</li>
 		{/each}
 	</ul>
 	<div class="row">
 		<div class="bar" style="flex:1"><i style="width:{pct}%"></i></div>
-		<span class="mono muted small">{pct} %</span>
+		<span class="mono muted small">{pct}%</span>
 	</div>
 </div>
 

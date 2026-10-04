@@ -51,6 +51,14 @@ const MIGRATIONS: string[] = [
 	CREATE TABLE mock_exams (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, source TEXT NOT NULL, score INTEGER NOT NULL);
 	CREATE TABLE study_sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, minutes INTEGER NOT NULL, activity TEXT NOT NULL, note TEXT NOT NULL DEFAULT '');
 	CREATE TABLE subnet_drills (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, correct INTEGER NOT NULL, ms INTEGER NOT NULL);
+	`,
+	// 2 — mini-QCM des leçons vidéo + noms de paquets en anglais
+	`
+	CREATE TABLE lesson_quiz (id INTEGER PRIMARY KEY AUTOINCREMENT, day INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, at TEXT NOT NULL);
+	CREATE INDEX lesson_quiz_day ON lesson_quiz(day);
+	UPDATE cards SET deck = 'Commands' WHERE deck = 'Commandes';
+	UPDATE cards SET deck = 'Tech English' WHERE deck = 'Anglais technique';
+	UPDATE cards SET deck = 'My cards' WHERE deck = 'Mes cartes';
 	`
 ];
 

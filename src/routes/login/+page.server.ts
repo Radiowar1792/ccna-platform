@@ -4,7 +4,7 @@ import { checkPassword, COOKIE, cookieOpts, makeToken } from '$lib/server/auth';
 export const actions = {
 	login: async ({ request, cookies, url }) => {
 		const f = await request.formData();
-		if (!checkPassword(String(f.get('password') ?? ''))) return fail(400, { error: 'Mot de passe incorrect.' });
+		if (!checkPassword(String(f.get('password') ?? ''))) return fail(400, { error: 'Wrong password.' });
 		cookies.set(COOKIE, makeToken(), cookieOpts(url.protocol === 'https:'));
 		const next = url.searchParams.get('next');
 		throw redirect(303, next && next.startsWith('/') ? next : '/');

@@ -11,7 +11,7 @@ async function viaApi(key: string): Promise<Item[]> {
 	for (let i = 0; i < 10; i++) {
 		const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${JEREMY_PLAYLIST}&key=${key}${page ? '&pageToken=' + page : ''}`;
 		const r = await fetch(url);
-		if (!r.ok) throw new Error(`API YouTube : ${r.status}`);
+		if (!r.ok) throw new Error(`YouTube API: ${r.status}`);
 		const j = await r.json();
 		for (const it of j.items ?? []) items.push({ id: it.snippet.resourceId.videoId, title: it.snippet.title });
 		if (!j.nextPageToken) break;
@@ -57,11 +57,11 @@ async function viaPage(): Promise<Item[]> {
 	const r = await fetch(`https://www.youtube.com/playlist?list=${JEREMY_PLAYLIST}&hl=en&gl=US`, {
 		headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9', Cookie: COOKIE }
 	});
-	if (!r.ok) throw new Error(`YouTube a répondu ${r.status}`);
+	if (!r.ok) throw new Error(`YouTube answered ${r.status}`);
 	const html = await r.text();
-	if (/consent\.youtube\.com|consent\.google/.test(r.url)) throw new Error('YouTube affiche la page de consentement aux cookies');
+	if (/consent\.youtube\.com|consent\.google/.test(r.url)) throw new Error('YouTube returned the cookie consent page');
 	const m = html.match(/(?:var ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
-	if (!m) throw new Error('format de page YouTube inattendu (ytInitialData introuvable)');
+	if (!m) throw new Error('unexpected YouTube page format (ytInitialData not found)');
 	const videos = new Map<string, string>();
 	let tokens: string[] = [];
 	collect(JSON.parse(m[1]), videos, tokens);
@@ -115,7 +115,7 @@ async function viaPage(): Promise<Item[]> {
 export async function syncPlaylist(): Promise<{ matched: number; total: number; method: string }> {
 	const key = env.YOUTUBE_API_KEY;
 	const items = key ? await viaApi(key) : await viaPage();
-	if (!items.length) throw new Error(key ? 'la playlist est vide ou la clé API est refusée' : 'aucune vidéo trouvée sur la page. Ajoute une clé YOUTUBE_API_KEY (voir README)');
+	if (!items.length) throw new Error(key ? 'the playlist is empty or the API key was refused' : 'no video found on the page. Add a YOUTUBE_API_KEY (see README)');
 	let matched = 0;
 	const seen = new Set<number>();
 	for (const it of items) {
@@ -132,5 +132,5 @@ export async function syncPlaylist(): Promise<{ matched: number; total: number; 
 		setVideoId(day, it.id, clean || undefined);
 		matched++;
 	}
-	return { matched, total: items.length, method: key ? 'API YouTube' : 'page publique' };
+	return { matched, total: items.length, method: key ? 'YouTube API' : 'public page' };
 }

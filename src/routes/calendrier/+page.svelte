@@ -6,26 +6,26 @@
 	const dots = (a: any) => (!a ? [] : [a.videos && 'video', a.cards && 'cards', a.questions && 'qcm', a.minutes && 'session', a.drills && 'subnet'].filter(Boolean));
 </script>
 
-<svelte:head><title>Calendrier · Objectif CCNA</title></svelte:head>
+<svelte:head><title>Calendar · CCNA Goal</title></svelte:head>
 
 <div class="stack">
 	<header class="row">
 		<h1 style="text-transform:capitalize">{fmtMonth(parseYmd(data.month))}</h1>
 		<span class="spacer"></span>
 		<a class="btn small" href="?m={data.prev}" data-sveltekit-noscroll>←</a>
-		<a class="btn small" href="/calendrier" data-sveltekit-noscroll>Aujourd'hui</a>
+		<a class="btn small" href="/calendrier" data-sveltekit-noscroll>Today</a>
 		<a class="btn small" href="?m={data.next}" data-sveltekit-noscroll>→</a>
 	</header>
 
 	<div class="legend row small muted">
-		<span><i class="k video"></i>Vidéos</span><span><i class="k lab"></i>Labs</span><span><i class="k long"></i>Session longue</span><span><i class="k rest"></i>Léger</span><span><i class="k exam"></i>Examen</span>
+		<span><i class="k video"></i>Videos</span><span><i class="k lab"></i>Labs</span><span><i class="k long"></i>Long session</span><span><i class="k rest"></i>Light</span><span><i class="k exam"></i>Exam</span>
 		<span class="spacer"></span>
-		<span>Points = ce que tu as vraiment fait</span>
+		<span>Dots = what you actually did</span>
 	</div>
 
 	<div class="cal-wrap">
 		<div class="cal">
-			{#each ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] as h}<div class="h">{h}</div>{/each}
+			{#each ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as h}<div class="h">{h}</div>{/each}
 			{#each data.days as d}
 				<button class="day" class:out={!d.inMonth} class:today={d.key === data.today} class:sel={d.key === (selected ?? data.today)} onclick={() => (selected = d.key)}>
 					<span class="num mono">{d.day}</span>
@@ -40,12 +40,12 @@
 	{#if sel}
 		<div class="card">
 			<h3 style="text-transform:capitalize">{fmtLong(sel.key)}</h3>
-			{#if sel.plan}<p><span class="muted">Prévu :</span> {sel.plan.label}</p>{/if}
+			{#if sel.plan}<p><span class="muted">Planned:</span> {sel.plan.label}</p>{/if}
 			{#each sel.events as e}<p><span class="pill {e.tone === 'red' ? 'red' : e.tone === 'green' ? 'green' : e.tone === 'amber' ? 'amber' : ''}">{e.label}</span></p>{/each}
 			{#if sel.act}
-				<p class="mono small">{sel.act.videos} vidéo(s) · {sel.act.cards} cartes révisées · {sel.act.questions} questions ({sel.act.qok} justes) · {sel.act.drills} exercices de subnetting · {sel.act.minutes} min de sessions</p>
+				<p class="mono small">{sel.act.videos} video(s) · {sel.act.cards} cards reviewed · {sel.act.questions} questions ({sel.act.qok} correct) · {sel.act.drills} subnetting drills · {sel.act.minutes} min logged</p>
 			{:else}
-				<p class="muted small">Aucune activité enregistrée ce jour-là.</p>
+				<p class="muted small">No activity recorded on this day.</p>
 			{/if}
 		</div>
 	{/if}

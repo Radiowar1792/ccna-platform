@@ -2,17 +2,17 @@
 	let { form } = $props();
 </script>
 
-<svelte:head><title>Connexion · Objectif CCNA</title></svelte:head>
+<svelte:head><title>Log in · CCNA Goal</title></svelte:head>
 
 <div class="wrap">
 	<form method="POST" action="?/login" class="card">
 		<div class="prompt"><b>User Access Verification</b></div>
-		<h1>Objectif CCNA</h1>
+		<h1>CCNA Goal</h1>
 		<label class="field" for="pw">Password:
 			<input id="pw" name="password" type="password" autocomplete="current-password" required />
 		</label>
 		{#if form?.error}<p class="flash err">{form.error}</p>{/if}
-		<button class="btn primary">Se connecter</button>
+		<button class="btn primary">Log in</button>
 	</form>
 </div>
 
