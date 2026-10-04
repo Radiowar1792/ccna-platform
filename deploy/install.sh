@@ -38,13 +38,15 @@ npm prune --omit=dev --no-audit --no-fund --loglevel=error
 if [ ! -f "$ENVF" ]; then
 	echo "==> Création de $ENVF"
 	IP="$(hostname -I | awk '{print $1}')"
-	PASS="$(tr -dc 'a-zA-Z0-9' </dev/urandom | head -c 14)"
+	# (pas de "tr </dev/urandom | head" : avec pipefail, le SIGPIPE arrête le script)
+	PASS="$(node -e "process.stdout.write(require('crypto').randomBytes(12).toString('base64url'))")"
+	SECRET="$(node -e "process.stdout.write(require('crypto').randomBytes(32).toString('hex'))")"
 	cat > "$ENVF" <<CONF
 PORT=3000
 HOST=0.0.0.0
 ORIGIN=http://$IP:3000
 APP_PASSWORD=$PASS
-SESSION_SECRET=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')
+SESSION_SECRET=$SECRET
 DATABASE_PATH=$DATA/ccna.db
 TZ=Europe/Paris
 # Clé facultative YouTube Data API v3 (synchronisation complète de la playlist)

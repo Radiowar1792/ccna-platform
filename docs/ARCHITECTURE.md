@@ -152,7 +152,7 @@ npm run dev                 # http://localhost:5173
 ### Avant chaque commit
 
 ```bash
-npm run check               # svelte-check : 0 erreur exigée (les 5 avertissements "state_referenced_locally" sont voulus)
+npm run check               # svelte-check : 0 erreur et 0 avertissement exigés
 bash scripts/smoke.sh       # build + toutes les pages en 200 + quelques API
 ```
 
