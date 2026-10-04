@@ -20,23 +20,67 @@ async function viaApi(key: string): Promise<Item[]> {
 	return items;
 }
 
-/** Sans clé : lit la page publique de la playlist (les ~100 premières vidéos). */
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36';
+// En Europe, YouTube redirige vers une page de consentement aux cookies : ces cookies la contournent.
+const COOKIE = 'SOCS=CAI; CONSENT=YES+cb';
+
+/** Parcourt récursivement la réponse YouTube et récupère les vidéos (ancien et nouveau format). */
+function collect(node: unknown, out: Map<string, string>, tokens: string[]) {
+	if (!node || typeof node !== 'object') return;
+	if (Array.isArray(node)) {
+		for (const x of node) collect(x, out, tokens);
+		return;
+	}
+	const o = node as Record<string, any>;
+	const pv = o.playlistVideoRenderer;
+	if (pv?.videoId) {
+		const t = pv.title?.runs?.map((r: any) => r.text).join('') ?? pv.title?.simpleText ?? '';
+		if (t) out.set(pv.videoId, t);
+	}
+	const lv = o.lockupViewModel;
+	if (lv?.contentId && lv.contentType !== 'LOCKUP_CONTENT_TYPE_PLAYLIST') {
+		const t = lv.metadata?.lockupMetadataViewModel?.title?.content;
+		if (t) out.set(lv.contentId, t);
+	}
+	const tok = o.continuationCommand?.token;
+	if (typeof tok === 'string') tokens.push(tok);
+	for (const k in o) collect(o[k], out, tokens);
+}
+
+/** Sans clé : lit la page publique de la playlist puis les pages suivantes (API interne de YouTube). */
 async function viaPage(): Promise<Item[]> {
-	const r = await fetch(`https://www.youtube.com/playlist?list=${JEREMY_PLAYLIST}&hl=en`, {
-		headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'en-US,en;q=0.9' }
+	const r = await fetch(`https://www.youtube.com/playlist?list=${JEREMY_PLAYLIST}&hl=en&gl=US`, {
+		headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9', Cookie: COOKIE }
 	});
-	if (!r.ok) throw new Error(`YouTube : ${r.status}`);
+	if (!r.ok) throw new Error(`YouTube a répondu ${r.status}`);
 	const html = await r.text();
-	const items: Item[] = [];
-	const re = /"playlistVideoRenderer":\{"videoId":"([\w-]{11})".*?"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/g;
-	let m: RegExpExecArray | null;
-	while ((m = re.exec(html))) items.push({ id: m[1], title: JSON.parse(`"${m[2]}"`) });
-	return items;
+	if (/consent\.youtube\.com|consent\.google/.test(r.url)) throw new Error('YouTube affiche la page de consentement aux cookies');
+	const m = html.match(/(?:var ytInitialData|window\["ytInitialData"\])\s*=\s*(\{.+?\});\s*<\/script>/s);
+	if (!m) throw new Error('format de page YouTube inattendu (ytInitialData introuvable)');
+	const videos = new Map<string, string>();
+	let tokens: string[] = [];
+	collect(JSON.parse(m[1]), videos, tokens);
+
+	const version = html.match(/"INNERTUBE_CLIENT_VERSION":"([^"]+)"/)?.[1] ?? '2.20241001.00.00';
+	const apiKey = html.match(/"INNERTUBE_API_KEY":"([^"]+)"/)?.[1];
+	for (let i = 0; i < 10 && tokens.length; i++) {
+		const token = tokens.pop()!;
+		tokens = [];
+		const res = await fetch(`https://www.youtube.com/youtubei/v1/browse?prettyPrint=false${apiKey ? '&key=' + apiKey : ''}`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'User-Agent': UA, Cookie: COOKIE },
+			body: JSON.stringify({ context: { client: { clientName: 'WEB', clientVersion: version, hl: 'en', gl: 'US' } }, continuation: token })
+		});
+		if (!res.ok) break;
+		collect(await res.json(), videos, tokens);
+	}
+	return [...videos].map(([id, title]) => ({ id, title }));
 }
 
 export async function syncPlaylist(): Promise<{ matched: number; total: number; method: string }> {
 	const key = env.YOUTUBE_API_KEY;
 	const items = key ? await viaApi(key) : await viaPage();
+	if (!items.length) throw new Error(key ? 'la playlist est vide ou la clé API est refusée' : 'aucune vidéo trouvée sur la page. Ajoute une clé YOUTUBE_API_KEY (voir README)');
 	let matched = 0;
 	const seen = new Set<number>();
 	for (const it of items) {

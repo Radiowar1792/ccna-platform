@@ -95,3 +95,13 @@ Pour y accéder hors de chez toi, passe par ton VPN (WireGuard, Tailscale) plut�
 ## Vidéos
 
 La page Vidéos intègre le lecteur YouTube. Le bouton **Synchroniser la playlist** associe chaque « Day N » à sa vidéo. Sans clé API, il lit la page publique de la playlist. Tu peux aussi coller le lien d'une vidéo à la main.
+
+### Clé YouTube gratuite (méthode la plus fiable)
+
+1. Va sur https://console.cloud.google.com, crée un projet (par exemple « ccna »).
+2. Menu **API et services → Bibliothèque** : active **YouTube Data API v3**.
+3. **API et services → Identifiants → Créer des identifiants → Clé API**. Copie la clé.
+4. Dans le LXC : `nano /etc/ccna-platform.env`, colle-la après `YOUTUBE_API_KEY=`, puis `systemctl restart ccna-platform`.
+5. Page Vidéos → **Synchroniser la playlist**.
+
+Le quota gratuit (10 000 unités par jour) est très largement suffisant : une synchronisation en consomme 3.
