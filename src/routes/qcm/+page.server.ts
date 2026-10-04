@@ -1,12 +1,14 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { addQuestion, pickQuestions, questionCounts, quizByDomain, recentAttempts, startAttempt } from '$lib/server/repo';
 import { ALL_TOPICS } from '$lib/data/topics';
+import { deleteImported, importQuestions, questionSources } from '$lib/server/importQuestions';
 
 export const load = ({ url }) => ({
 	counts: questionCounts(),
 	byDomain: quizByDomain(),
 	attempts: recentAttempts(12),
-	preset: url.searchParams.get('domain') ?? ''
+	preset: url.searchParams.get('domain') ?? '',
+	sources: questionSources()
 });
 
 export const actions = {
@@ -32,5 +34,19 @@ export const actions = {
 			return fail(400, { addError: 'You need a topic, a question, at least 2 answers and at least one correct answer ticked.' });
 		addQuestion(topic, stem, options, answer, explanation);
 		return { added: true };
+	},
+	import: async ({ request }) => {
+		const f = await request.formData();
+		const file = f.get('file');
+		let text = String(f.get('json') ?? '').trim();
+		if (file instanceof File && file.size) text = await file.text();
+		if (!text) return fail(400, { importReport: { added: 0, duplicates: 0, errors: ['Choose a .json file or paste JSON.'] } });
+		return { importReport: importQuestions(text) };
+	},
+	deleteSource: async ({ request }) => {
+		const f = await request.formData();
+		const src = String(f.get('source') ?? '');
+		if (!src || src === 'built-in' || src === 'my questions') return fail(400, { error: 'Only imported sets can be deleted.' });
+		return { deleted: deleteImported(src) };
 	}
 };

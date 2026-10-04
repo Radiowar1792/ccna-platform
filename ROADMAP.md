@@ -17,8 +17,13 @@
 - Leçon en anglais sous chaque vidéo : résumé (avec écoute audio), points clés, commandes, vocabulaire EN→FR, indice, explication FR
 - Mini-QCM de 3 questions par vidéo, meilleur score affiché dans la liste
 
-## v0.3 (prochaines idées)
-- [ ] Import d'un paquet Anki (.apkg), dont le deck de Jeremy
+## v0.3 (fait)
+- Flashcards façon Anki : cartes par Day débloquées avec la vidéo, vocabulaire des leçons, options, Undo, prévision, import `.apkg`
+- Page Stats complète (graphiques et tableaux sur tout)
+- Page Workflow en français
+- Import JSON de questions QCM
+
+## v0.4 (prochaines idées)
 - [ ] Anglais : bouton « Listen » sur les questions de QCM, traduction au survol des termes
 - [ ] Questions « Refer to the exhibit » avec sorties `show` (images ou texte)
 - [ ] Labs : liste des labs Packet Tracer par Day, statut fait/à refaire, fichiers .pkt

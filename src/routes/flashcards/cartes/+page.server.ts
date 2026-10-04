@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { deleteCard, listCards, setSuspended, updateCard } from '$lib/server/repo';
+import { deleteCard, listCards, resetCard, setSuspended, updateCard } from '$lib/server/repo';
 
 export const load = ({ url }) => {
 	const deck = url.searchParams.get('deck');
@@ -15,6 +15,7 @@ export const actions = {
 		if (!front || !back) return fail(400, { error: 'Front and back are both required.' });
 		updateCard(id, front, back, String(f.get('topic') ?? '') || null, String(f.get('deck') ?? 'My cards'));
 	},
+	reset: async ({ request }) => resetCard(Number((await request.formData()).get('id'))),
 	delete: async ({ request }) => deleteCard(Number((await request.formData()).get('id'))),
 	suspend: async ({ request }) => {
 		const f = await request.formData();

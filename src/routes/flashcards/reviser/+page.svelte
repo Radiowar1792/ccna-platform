@@ -9,6 +9,7 @@
 	let again = $state(0);
 	let started = Date.now();
 	let intervals = $state<Record<number, string> | null>(null);
+	let canUndo = $state(false);
 	const card = $derived(queue[0]);
 
 	async function flip() {
@@ -27,12 +28,27 @@
 		flipped = false;
 		started = Date.now();
 		await post('/api/review', { cardId: c.id, rating, ms }, false);
+		canUndo = true;
+	}
+	// Annuler la dernière note (comme Ctrl+Z dans Anki) : la carte revient en tête de file.
+	async function undo() {
+		if (!canUndo) return;
+		const r = await post<{ card: any }>('/api/review', { op: 'undo' }, false);
+		canUndo = false;
+		if (!r.card) return;
+		const idx = queue.findIndex((q) => q.id === r.card.id);
+		if (idx >= 0) queue = queue.filter((_, i) => i !== idx); else if (done > 0) done--;
+		if (idx >= 0) again = Math.max(0, again - 1);
+		queue = [r.card, ...queue];
+		flipped = false;
+		started = Date.now();
 	}
 	onMount(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
 			if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
 			if (flipped && ['1', '2', '3', '4'].includes(e.key)) rate(Number(e.key) as 1 | 2 | 3 | 4);
+			if ((e.key === 'z' && (e.ctrlKey || e.metaKey)) || e.key === 'u') { e.preventDefault(); undo(); }
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
@@ -51,12 +67,13 @@
 	<header class="row">
 		<a class="btn small ghost" href="/flashcards">← Decks</a>
 		<span class="spacer"></span>
-		<span class="mono small muted">{data.deck ?? 'All decks'} · {done} done · {queue.length} left</span>
+		<button class="btn small ghost" onclick={undo} disabled={!canUndo} title="Undo the last answer (Ctrl+Z)">Undo</button>
+		<span class="mono small muted">{data.day ? `Day ${data.day}` : data.deck ?? 'All decks'} · {done} done · {queue.length} left</span>
 	</header>
 
 	{#if card}
 		<button class="fc" class:flipped onclick={flip} aria-label={flipped ? 'Card flipped' : 'Flip the card'}>
-			<span class="row small muted"><span class="pill light">{card.deck}</span>{#if card.topic}<span class="mono">{card.topic}</span>{/if}{#if card.state === 0}<span class="pill">New</span>{/if}</span>
+			<span class="row small muted"><span class="pill light">{card.deck}</span>{#if card.day}<span class="mono">Day {card.day}</span>{/if}{#if card.topic}<span class="mono">{card.topic}</span>{/if}{#if card.state === 0}<span class="pill">New</span>{/if}</span>
 			<span class="front">{card.front}</span>
 			{#if flipped}
 				<hr />

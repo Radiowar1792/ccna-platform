@@ -59,12 +59,17 @@ src/
 │   │   ├── db.ts                    Connexion, MIGRATIONS[], seed(), getSetting/setSetting
 │   │   ├── repo.ts                  Toutes les requêtes SQL (planning, thèmes, vidéos, FSRS, QCM, stats)
 │   │   ├── heat.ts                  Points d'activité par jour pour la heatmap
+│   │   ├── stats.ts                 Tous les calculs de la page Stats (temps, cartes, QCM, leçons, subnetting, planning)
+│   │   ├── anki.ts                  Import .apkg (zip + SQLite, zstd pour le format récent), sans dépendance
+│   │   ├── importQuestions.ts       Import JSON de questions (dédoublonnage par énoncé)
 │   │   ├── auth.ts                  Mot de passe unique + cookie signé HMAC (60 jours)
 │   │   └── youtube.ts               Synchronisation playlist → videos.youtube_id
-│   └── components/                  WeekCard, Heatmap, LineChart, SessionForm, LessonPanel (leçon sous chaque vidéo)
+│   └── components/                  WeekCard, Heatmap, LineChart (multi-séries + survol), BarChart (empilé + survol),
+│                                    SessionForm, LessonPanel (leçon sous chaque vidéo)
 └── routes/
     ├── +layout.svelte / .server.ts  Barre latérale (barre du haut sur mobile), badge des cartes dues
     ├── +page.*                      Accueil : tâche du jour, résumé, semaine, heatmap, sessions
+    ├── workflow/                    Mode d'emploi détaillé (EN FRANÇAIS, à la demande de Batiste)
     ├── planning/  calendrier/  themes/  videos/  stats/  subnetting/  login/
     ├── flashcards/                  Paquets + ajout ; reviser/ (session) ; cartes/ (gestion)
     ├── qcm/                         Lancement + ajout de question ; [id]/ (passage et correction)
@@ -94,14 +99,14 @@ Fichier : `DATABASE_PATH` (en dev `./data/ccna.db`, en prod `/var/lib/ccna-platf
 
 | Table | Rôle |
 |---|---|
-| `settings(key, value)` | `examDate`, `soloStartsOdd` |
+| `settings(key, value)` | `examDate`, `soloStartsOdd`, `fc_new_per_day`, `fc_retention`, `fc_unlock` |
 | `task_done(week, idx, done_at)` | Tâches cochées. `idx` = position dans `tasksFor(week, solo)` |
 | `week_solo(week, solo)` | Choix du week-end s'il diffère de l'alternance par défaut |
 | `topic_status(code, status 0-2, note)` | LED (0 = à apprendre, 1 = à revoir, 2 = maîtrisé) et notes |
 | `videos(day, title, youtube_id, watched_at)` | Day 1 à 63 |
-| `cards(id, seed_key, deck, topic, front, back, fsrs JSON, due, suspended)` | Flashcards. `fsrs` = carte ts-fsrs sérialisée |
-| `reviews(card_id, rating 1-4, reviewed_at, ms)` | Historique des révisions |
-| `questions(id, seed_key, topic, stem, options JSON, answer JSON, explanation)` | Banque QCM |
+| `cards(id, seed_key, deck, topic, day, source, front, back, fsrs JSON, due, suspended)` | Flashcards. `fsrs` = carte ts-fsrs sérialisée. `day` = Day de Jeremy (déblocage quand la vidéo est vue). `source` = seed / lesson / anki |
+| `reviews(card_id, rating 1-4, reviewed_at, ms, prev)` | Historique des révisions. `prev` = état FSRS avant la note (pour Undo et la rétention) |
+| `questions(id, seed_key, topic, stem, options JSON, answer JSON, explanation, source)` | Banque QCM. `source` = nom du lot importé |
 | `quiz_attempts(id, mode, filter JSON {domain, pick, ids}, total, correct, …)` | Une série de QCM |
 | `quiz_answers(attempt_id, question_id, chosen JSON, correct)` | Réponses données |
 | `mock_exams(date, source, score)` | Examens blancs saisis à la main |
@@ -125,9 +130,11 @@ Fichier : `DATABASE_PATH` (en dev `./data/ccna.db`, en prod `/var/lib/ccna-platf
 - Énoncés et réponses des QCM, recto des cartes et leçons : anglais simple (niveau B1-B2), phrases courtes.
 - Les commentaires de code et les messages de commit restent en français.
 - Paquet « Tech English » : recto = terme anglais, verso = traduction française.
+- Exception : la page **Workflow** est entièrement en français (demande explicite de Batiste).
 
 **Contenu CCNA**
-- **Questions originales uniquement.** Jamais de « dumps » (ExamTopics, etc.).
+- **Questions originales uniquement** dans le dépôt. Jamais de « dumps » (ExamTopics, etc.).
+- Les QCM que Batiste fournit (PDF achetés, Netacad…) sont protégés par le droit d'auteur : on les convertit en JSON et il les importe via Quiz → Import. Ils vont dans SA base, **jamais dans le dépôt public**.
 - Vérifie chaque fait technique (AD, ports, timers, commandes IOS) avant de l'ajouter. Une erreur dans une flashcard s'apprend par cœur.
 - Chaque question et chaque carte est reliée à un code de thème existant (`1.1` … `6.7`).
 - Leçons (`src/lib/data/lessons/blockN.ts`) : exactement 3 questions de mini-QCM, au moins 4 mots de vocabulaire, un `hint` court en anglais, un `fr` détaillé. Vérifie que le contenu correspond au titre de la vidéo.
@@ -212,20 +219,25 @@ Ce qu'il faut savoir sur le LXC :
 
 ## 10. État actuel (à tenir à jour)
 
-**Version : 0.2** (4 octobre 2026)
+**Version : 0.3** (4 octobre 2026)
 
 - v0.1 : planning, calendrier, vidéos, flashcards FSRS, QCM, subnetting, thèmes, statistiques, déploiement LXC.
-- v0.2 : interface en anglais. Sous chaque vidéo, une leçon en anglais (résumé avec écoute audio via la synthèse vocale du navigateur, points clés, commandes, vocabulaire EN→FR masquable, indice, explication en français) et un mini-QCM de 3 questions dont le score est enregistré (`lesson_quiz`, migration 2, qui renomme aussi les paquets de cartes en anglais).
-- Déployé et fonctionnel dans le LXC de Batiste. La synchronisation de la playlist lie les 49 premières vidéos ; la récupération au-delà de la 100e vidéo a été corrigée mais reste à confirmer.
+- v0.2 : interface en anglais, leçon en anglais + mini-QCM sous chaque vidéo.
+- v0.3 :
+  - Flashcards façon Anki : cartes rattachées à un Day et débloquées quand la vidéo est cochée, ~315 cartes de vocabulaire tirées des leçons, réglages (nouvelles cartes par jour, rétention visée, déblocage), Undo (Ctrl+Z), prévision sur 30 jours, révision ciblée d'un Day, import de paquets Anki `.apkg` (deck de Jeremy).
+  - Page Stats complète : temps par semaine et par activité, activité quotidienne, jours et heures de travail, états des cartes, boutons, rétention, paquets, cartes difficiles, scores QCM (pratique / examen), domaines, thèmes faibles, tableau des 53 thèmes, grille des 63 mini-QCM, subnetting (précision et vitesse), vidéos vs planning, tâches par semaine, examens blancs.
+  - Page Workflow (en français) : la méthode complète d'utilisation.
+  - Import JSON de questions dans la banque QCM, gestion par lot (suppression d'un lot importé).
+- Migration 3 : `cards.day`, `cards.source`, `reviews.prev`, `questions.source`. Testée sur une base v0.2.
 
 Limites connues :
-- **Numérotation des Days** : écrite de mémoire dans `videos.ts`, titres remplacés par la synchronisation. Les leçons suivent cette numérotation : si la playlist réelle est décalée, il faut décaler les leçons aussi.
+- **Numérotation des Days** : écrite de mémoire dans `videos.ts`. Les leçons et leurs cartes suivent cette numérotation.
+- Import `.apkg` : seuls les deux premiers champs de chaque note sont gardés (recto / verso) ; images et sons ignorés. Format récent (`anki21b`, zstd) : Node ≥ 22.15 requis (Node 24 en prod : OK).
 - Parsing de la page publique YouTube fragile ; la voie fiable est `YOUTUBE_API_KEY`.
-- Compteur de nouvelles cartes du jour (`reviewQueue`) approximatif.
 - Pas de tests automatisés au-delà de `scripts/smoke.sh`.
 
 **Prochaines étapes conseillées** (voir `ROADMAP.md`) :
-1. Import Anki `.apkg` (deck de Jeremy).
-2. Questions « Refer to the exhibit » avec sorties `show`.
-3. Suivi des labs Packet Tracer par Day.
-4. Export / import JSON des données.
+1. Questions « Refer to the exhibit » avec sorties `show`.
+2. Suivi des labs Packet Tracer par Day.
+3. Export / import JSON de toutes les données.
+4. PWA hors ligne pour les flashcards sur téléphone.

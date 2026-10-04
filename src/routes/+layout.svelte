@@ -5,6 +5,7 @@
 
 	const NAV = [
 		{ href: '/', label: 'Home', icon: 'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+		{ href: '/workflow', label: 'Workflow', icon: 'M4 6h9M4 12h13M4 18h7M17 3l3 3-3 3M15 15l3 3-3 3' },
 		{ href: '/planning', label: 'Plan', icon: 'M4 6h16M4 12h16M4 18h10' },
 		{ href: '/calendrier', label: 'Calendar', icon: 'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4' },
 		{ href: '/videos', label: 'Videos', icon: 'M4 6h16v12H4zM10 9l5 3-5 3z' },

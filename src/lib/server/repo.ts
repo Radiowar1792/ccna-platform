@@ -76,8 +76,22 @@ export function setVideoId(day: number, id: string | null, title?: string) {
 	else run('UPDATE videos SET youtube_id = ? WHERE day = ?', id, day);
 }
 
-/* ---------- flashcards (FSRS) ---------- */
-const scheduler = fsrs({ enable_fuzz: true });
+/* ---------- flashcards (FSRS, fonctionnement façon Anki) ---------- */
+export interface FlashSettings { newPerDay: number; retention: number; unlockByVideo: boolean }
+
+export function getFlashSettings(): FlashSettings {
+	return {
+		newPerDay: Number(getSetting('fc_new_per_day', '15')),
+		retention: Number(getSetting('fc_retention', '0.9')),
+		unlockByVideo: getSetting('fc_unlock', '1') === '1'
+	};
+}
+export function setFlashSettings(s: FlashSettings) {
+	setSetting('fc_new_per_day', String(Math.max(0, Math.min(200, Math.round(s.newPerDay)))));
+	setSetting('fc_retention', String(Math.max(0.7, Math.min(0.97, s.retention))));
+	setSetting('fc_unlock', s.unlockByVideo ? '1' : '0');
+}
+const scheduler = () => fsrs({ enable_fuzz: true, request_retention: getFlashSettings().retention });
 
 function loadCard(json: string): Card {
 	const c = JSON.parse(json);
@@ -86,52 +100,89 @@ function loadCard(json: string): Card {
 	return c as Card;
 }
 
+/** Condition SQL : la carte est "débloquée" (pas liée à un Day, ou vidéo du Day déjà vue). */
+function unlockedSql(): string {
+	return getFlashSettings().unlockByVideo
+		? '(cards.day IS NULL OR cards.day IN (SELECT day FROM videos WHERE watched_at IS NOT NULL))'
+		: '1 = 1';
+}
+
+/** Début du jour local en ISO (les horodatages sont en UTC). */
+const startOfToday = () => new Date(ymd() + 'T00:00:00').toISOString();
+
+/** Nouvelles cartes déjà vues aujourd'hui (première révision aujourd'hui). */
+function introducedToday(): number {
+	return (one(
+		`SELECT COUNT(*) AS n FROM (SELECT card_id, MIN(reviewed_at) AS first FROM reviews GROUP BY card_id) WHERE first >= ?`,
+		startOfToday()
+	)?.n ?? 0) as number;
+}
+
 export function deckStats() {
 	const now = new Date().toISOString();
+	const unlocked = unlockedSql();
 	return all(
 		`SELECT deck,
 		        COUNT(*) AS total,
 		        SUM(CASE WHEN suspended = 0 AND due <= ? AND json_extract(fsrs, '$.state') != 0 THEN 1 ELSE 0 END) AS due,
-		        SUM(CASE WHEN suspended = 0 AND json_extract(fsrs, '$.state') = 0 THEN 1 ELSE 0 END) AS new
+		        SUM(CASE WHEN suspended = 0 AND json_extract(fsrs, '$.state') = 0 AND ${unlocked} THEN 1 ELSE 0 END) AS new,
+		        SUM(CASE WHEN suspended = 0 AND json_extract(fsrs, '$.state') = 0 AND NOT ${unlocked} THEN 1 ELSE 0 END) AS locked
 		 FROM cards GROUP BY deck ORDER BY deck`,
 		now
 	);
 }
 
-/** File de révision : cartes dues d'abord, puis jusqu'à `newLimit` nouvelles cartes par jour. */
-export function reviewQueue(deck: string | null, newLimit = 15) {
-	const now = new Date().toISOString();
-	const today = ymd();
-	const introduced = one(
-		`SELECT COUNT(DISTINCT card_id) AS n FROM reviews r WHERE substr(reviewed_at,1,10) >= ? AND NOT EXISTS
-		   (SELECT 1 FROM reviews r2 WHERE r2.card_id = r.card_id AND r2.reviewed_at < r.reviewed_at)`,
-		today
-	)?.n ?? 0;
-	const deckSql = deck ? 'AND deck = ?' : '';
-	const args = deck ? [deck] : [];
-	const due = all(
-		`SELECT id, deck, topic, front, back, fsrs FROM cards WHERE suspended = 0 AND json_extract(fsrs,'$.state') != 0 AND due <= ? ${deckSql} ORDER BY due LIMIT 200`,
-		now, ...args
-	);
-	const fresh = all(
-		`SELECT id, deck, topic, front, back, fsrs FROM cards WHERE suspended = 0 AND json_extract(fsrs,'$.state') = 0 ${deckSql} ORDER BY id LIMIT ?`,
-		...args, Math.max(0, newLimit - introduced)
-	);
-	return [...due, ...fresh].map((r) => ({ id: r.id, deck: r.deck, topic: r.topic, front: r.front, back: r.back, state: JSON.parse(r.fsrs).state as number }));
+/** Nouvelles cartes restantes aujourd'hui (limite quotidienne commune à tous les paquets, comme Anki). */
+export function newLeftToday(): number {
+	return Math.max(0, getFlashSettings().newPerDay - introducedToday());
 }
 
-/** Intervalles affichés sous les 4 boutons (À revoir, Difficile, Bien, Facile). */
+/** File de révision : cartes dues d'abord, puis les nouvelles dans l'ordre du cours (Day 1, 2, 3…). */
+export function reviewQueue(deck: string | null, day: number | null = null) {
+	const now = new Date().toISOString();
+	const filters: string[] = [];
+	const args: any[] = [];
+	if (deck) { filters.push('deck = ?'); args.push(deck); }
+	if (day) { filters.push('day = ?'); args.push(day); }
+	const extra = filters.length ? 'AND ' + filters.join(' AND ') : '';
+	const due = all(
+		`SELECT id, deck, topic, day, front, back, fsrs FROM cards WHERE suspended = 0 AND json_extract(fsrs,'$.state') != 0 AND due <= ? ${extra} ORDER BY due LIMIT 500`,
+		now, ...args
+	);
+	// Révision ciblée d'un Day : toutes ses nouvelles cartes, sans limite quotidienne.
+	const limit = day ? 500 : newLeftToday();
+	const fresh = all(
+		`SELECT id, deck, topic, day, front, back, fsrs FROM cards WHERE suspended = 0 AND json_extract(fsrs,'$.state') = 0 AND ${unlockedSql()} ${extra}
+		 ORDER BY COALESCE(day, 999), id LIMIT ?`,
+		...args, limit
+	);
+	return [...due, ...fresh].map((r) => ({ id: r.id, deck: r.deck, topic: r.topic, day: r.day, front: r.front, back: r.back, state: JSON.parse(r.fsrs).state as number }));
+}
+
+/** Nombre de cartes par Day (pour la page vidéo) : total, nouvelles, dues. */
+export function dayCardCounts(day: number) {
+	const now = new Date().toISOString();
+	return one(
+		`SELECT COUNT(*) AS total,
+		        SUM(CASE WHEN json_extract(fsrs,'$.state') = 0 THEN 1 ELSE 0 END) AS new,
+		        SUM(CASE WHEN json_extract(fsrs,'$.state') != 0 AND due <= ? THEN 1 ELSE 0 END) AS due
+		 FROM cards WHERE day = ? AND suspended = 0`,
+		now, day
+	) as { total: number; new: number; due: number };
+}
+
+/** Intervalles affichés sous les 4 boutons (Again, Hard, Good, Easy). */
 export function previewIntervals(cardId: number) {
 	const r = one('SELECT fsrs FROM cards WHERE id = ?', cardId);
 	if (!r) return null;
 	const now = new Date();
-	const prev = scheduler.repeat(loadCard(r.fsrs), now);
+	const prev = scheduler().repeat(loadCard(r.fsrs), now);
 	const fmt = (d: Date) => {
 		const m = Math.round((d.getTime() - now.getTime()) / 60000);
 		if (m < 60) return `${Math.max(1, m)} min`;
 		if (m < 1440) return `${Math.round(m / 60)} h`;
 		const days = Math.round(m / 1440);
-		return days < 31 ? `${days} j` : `${Math.round(days / 30)} mois`;
+		return days < 31 ? `${days} d` : days < 365 ? `${Math.round(days / 30)} mo` : `${(days / 365).toFixed(1)} y`;
 	};
 	return {
 		1: fmt(prev[Rating.Again].card.due),
@@ -142,23 +193,57 @@ export function previewIntervals(cardId: number) {
 }
 
 export function reviewCard(cardId: number, rating: Grade, ms: number) {
-	const r = one('SELECT fsrs FROM cards WHERE id = ?', cardId);
+	const r = one('SELECT fsrs, due FROM cards WHERE id = ?', cardId);
 	if (!r) return;
 	const now = new Date();
-	const { card } = scheduler.next(loadCard(r.fsrs), now, rating);
+	const { card } = scheduler().next(loadCard(r.fsrs), now, rating);
 	run('UPDATE cards SET fsrs = ?, due = ? WHERE id = ?', JSON.stringify(card), card.due.toISOString(), cardId);
-	run('INSERT INTO reviews (card_id, rating, reviewed_at, ms) VALUES (?, ?, ?, ?)', cardId, rating, now.toISOString(), Math.min(ms, 600000));
+	run('INSERT INTO reviews (card_id, rating, reviewed_at, ms, prev) VALUES (?, ?, ?, ?, ?)', cardId, rating, now.toISOString(), Math.min(ms, 600000), JSON.stringify({ fsrs: r.fsrs, due: r.due }));
+}
+
+/** Annule la dernière révision (Ctrl+Z, comme dans Anki). Renvoie l'id de la carte rétablie. */
+export function undoLastReview(): number | null {
+	const r = one('SELECT id, card_id, prev FROM reviews ORDER BY id DESC LIMIT 1');
+	if (!r || !r.prev) return null;
+	const prev = JSON.parse(r.prev);
+	run('UPDATE cards SET fsrs = ?, due = ? WHERE id = ?', prev.fsrs, prev.due, r.card_id);
+	run('DELETE FROM reviews WHERE id = ?', r.id);
+	return r.card_id;
+}
+
+export function getCardForReview(id: number) {
+	const r = one('SELECT id, deck, topic, day, front, back, fsrs FROM cards WHERE id = ?', id);
+	return r ? { id: r.id, deck: r.deck, topic: r.topic, day: r.day, front: r.front, back: r.back, state: JSON.parse(r.fsrs).state as number } : null;
+}
+
+/** Cartes dues par jour sur les `days` prochains jours (prévision, comme les stats d'Anki). */
+export function forecast(days = 30) {
+	const out: { d: string; n: number }[] = [];
+	const today = new Date();
+	const rows = all(`SELECT due FROM cards WHERE suspended = 0 AND json_extract(fsrs,'$.state') != 0`);
+	const counts = new Map<string, number>();
+	const todayKey = ymd(today);
+	for (const r of rows) {
+		let k = ymd(new Date(r.due));
+		if (k < todayKey) k = todayKey; // en retard = à faire aujourd'hui
+		counts.set(k, (counts.get(k) ?? 0) + 1);
+	}
+	for (let i = 0; i < days; i++) {
+		const k = ymd(addDays(today, i));
+		out.push({ d: k, n: counts.get(k) ?? 0 });
+	}
+	return out;
 }
 
 export function listCards(deck: string | null) {
 	return all(
-		`SELECT id, deck, topic, front, back, due, suspended, json_extract(fsrs,'$.state') AS state, json_extract(fsrs,'$.reps') AS reps FROM cards ${deck ? 'WHERE deck = ?' : ''} ORDER BY deck, id`,
+		`SELECT id, deck, topic, day, front, back, due, suspended, json_extract(fsrs,'$.state') AS state, json_extract(fsrs,'$.reps') AS reps, json_extract(fsrs,'$.lapses') AS lapses FROM cards ${deck ? 'WHERE deck = ?' : ''} ORDER BY deck, COALESCE(day, 999), id`,
 		...(deck ? [deck] : [])
 	);
 }
-export function addCard(deck: string, topic: string | null, front: string, back: string) {
+export function addCard(deck: string, topic: string | null, front: string, back: string, day: number | null = null) {
 	const now = new Date();
-	run('INSERT INTO cards (deck, topic, front, back, fsrs, due, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)', deck, topic, front, back, JSON.stringify(createEmptyCard(now)), now.toISOString(), now.toISOString());
+	run('INSERT INTO cards (deck, topic, day, front, back, fsrs, due, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', deck, topic, day, front, back, JSON.stringify(createEmptyCard(now)), now.toISOString(), now.toISOString());
 }
 export function updateCard(id: number, front: string, back: string, topic: string | null, deck: string) {
 	run('UPDATE cards SET front = ?, back = ?, topic = ?, deck = ? WHERE id = ?', front, back, topic, deck, id);
@@ -168,6 +253,11 @@ export function deleteCard(id: number) {
 }
 export function setSuspended(id: number, on: boolean) {
 	run('UPDATE cards SET suspended = ? WHERE id = ?', on ? 1 : 0, id);
+}
+/** Remet une carte à zéro (redevient nouvelle). */
+export function resetCard(id: number) {
+	const now = new Date();
+	run('UPDATE cards SET fsrs = ?, due = ? WHERE id = ?', JSON.stringify(createEmptyCard(now)), now.toISOString(), id);
 }
 
 /* ---------- QCM ---------- */

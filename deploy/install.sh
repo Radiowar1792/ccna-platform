@@ -49,12 +49,17 @@ APP_PASSWORD=$PASS
 SESSION_SECRET=$SECRET
 DATABASE_PATH=$DATA/ccna.db
 TZ=Europe/Paris
+# Taille max des envois (import de paquets Anki)
+BODY_SIZE_LIMIT=60M
 # Clé facultative YouTube Data API v3 (synchronisation complète de la playlist)
 YOUTUBE_API_KEY=
 CONF
 	chmod 600 "$ENVF"
 	echo "   Mot de passe de connexion : $PASS"
 fi
+
+# Réglages ajoutés après la v0.1 : on complète un .env existant sans rien écraser.
+grep -q "^BODY_SIZE_LIMIT=" "$ENVF" || echo "BODY_SIZE_LIMIT=60M" >> "$ENVF"
 
 chown -R ccna:ccna "$DATA" /var/backups/ccna-platform
 cp "$APP/deploy/ccna-platform.service" /etc/systemd/system/

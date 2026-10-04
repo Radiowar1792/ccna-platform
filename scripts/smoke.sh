@@ -12,7 +12,7 @@ PID=$!
 trap 'kill $PID 2>/dev/null' EXIT
 for i in $(seq 1 30); do curl -sf -o /dev/null "http://localhost:$PORT/login" && break; sleep 0.5; done
 FAIL=0
-for p in / /planning /calendrier /videos /flashcards /flashcards/reviser /flashcards/cartes /qcm /subnetting /themes /stats /login; do
+for p in / /workflow /planning /calendrier /videos /flashcards /flashcards/reviser /flashcards/cartes /qcm /subnetting /themes /stats /login; do
 	code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT$p")
 	printf '%s %s\n' "$code" "$p"
 	[ "$code" = 200 ] || FAIL=1

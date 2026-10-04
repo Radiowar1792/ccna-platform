@@ -92,6 +92,19 @@
 			{#if lesson}
 				<LessonPanel {lesson} best={data.scores[data.day]} />
 			{/if}
+			<div class="card fcbox">
+				<div class="row">
+					<h3>Flashcards · Day {v.day}</h3>
+					<span class="spacer"></span>
+					<span class="mono small muted">{data.cards.total ?? 0} cards · {data.cards.new ?? 0} new · {data.cards.due ?? 0} due</span>
+				</div>
+				{#if !v.watched_at && data.unlockByVideo}
+					<p class="small muted">Tick "Watched" above to unlock this Day's cards, like Jeremy's Anki deck.</p>
+				{:else}
+					<p class="small muted">Study this Day's cards now, while the video is fresh. Then they come back automatically in your daily reviews.</p>
+				{/if}
+				<div class="row"><a class="btn primary small" class:disabled={!v.watched_at && data.unlockByVideo} href="/flashcards/reviser?day={v.day}">Study Day {v.day} cards</a></div>
+			</div>
 		</div>
 
 		<div class="list">
@@ -121,6 +134,7 @@
 	.it:hover { background: var(--panel2); }
 	.it.cur { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 	.it.seen .t { color: var(--muted); }
+	.fcbox .disabled { opacity: 0.5; pointer-events: none; }
 	.qs { font-size: 11px; color: var(--amber); }
 	.qs.perfect { color: var(--green); }
 	.d { font-size: 12px; color: var(--muted); text-align: right; }

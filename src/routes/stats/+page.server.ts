@@ -1,24 +1,17 @@
 import { fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { addMock, deleteMock, getTopics, listMocks, quizByDomain, readiness, streak, subnetStats, totals } from '$lib/server/repo';
+import { addMock, deleteMock, getTopics, listMocks, readiness, streak, totals } from '$lib/server/repo';
+import { allStats } from '$lib/server/stats';
 import { heatPoints } from '$lib/server/heat';
 
-export const load = () => {
-	const attempts = db.prepare('SELECT started_at, total, correct FROM quiz_attempts WHERE finished_at IS NOT NULL AND total >= 5 ORDER BY id').all() as any[];
-	const byActivity = db.prepare('SELECT activity, SUM(minutes) AS m FROM study_sessions GROUP BY activity ORDER BY m DESC').all() as any[];
-	return {
-		totals: totals(),
-		streak: streak(),
-		readiness: readiness(),
-		topics: getTopics(),
-		quiz: quizByDomain(),
-		mocks: listMocks(),
-		attempts: attempts.map((a) => ({ date: a.started_at.slice(0, 10), v: Math.round((100 * a.correct) / a.total) })),
-		byActivity,
-		subnet: subnetStats(),
-		heat: heatPoints(39)
-	};
-};
+export const load = () => ({
+	totals: totals(),
+	streak: streak(),
+	readiness: readiness(),
+	topics: getTopics(),
+	mocks: listMocks(),
+	heat: heatPoints(39),
+	s: allStats()
+});
 
 export const actions = {
 	addMock: async ({ request }) => {

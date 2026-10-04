@@ -21,6 +21,11 @@
 	--heat-2: #7fb0e0;
 	--heat-3: #3b82c9;
 	--heat-4: #1c64a8;
+	/* Séries de graphiques (palette validée daltonisme, ordre fixe) */
+	--s1: #2a78d6;
+	--s2: #eb6834;
+	--s3: #1baf7a;
+	--s4: #eda100;
 	--f-display: 'Saira Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
 	--f-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 	--f-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
@@ -50,6 +55,10 @@
 		--heat-2: #275a88;
 		--heat-3: #3a80c4;
 		--heat-4: #5aa6ec;
+		--s1: #3987e5;
+		--s2: #d95926;
+		--s3: #199e70;
+		--s4: #c98500;
 		color-scheme: dark;
 	}
 }

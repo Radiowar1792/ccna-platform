@@ -4,6 +4,8 @@
 	import { fmtShort } from '$lib/dates';
 	let { data, form } = $props();
 	let mode = $state('train');
+	let confirmDel = $state<string | null>(null);
+	const EXAMPLE = '[{"topic": "3.4", "question": "Which OSPF state…?", "options": ["2-Way", "Full", "Init", "Down"], "answer": "B", "explanation": "…", "source": "My PDF"}]';
 	const total = $derived(Object.values(data.counts).reduce((a, b) => a + b, 0));
 </script>
 
@@ -73,6 +75,40 @@
 			</table></div>
 		</div>
 	{/if}
+
+	<div class="card">
+		<h3>Question bank</h3>
+		<div class="tablewrap"><table>
+			<thead><tr><th>Source</th><th>Questions</th><th></th></tr></thead>
+			<tbody>
+				{#each data.sources as src}
+					<tr><td>{src.source}</td><td class="num">{src.n}</td>
+						<td>{#if src.source !== 'built-in' && src.source !== 'my questions'}
+							{#if confirmDel === src.source}
+								<form method="POST" action="?/deleteSource" use:enhance={() => async ({ update }) => { confirmDel = null; await update(); }} class="row"><input type="hidden" name="source" value={src.source} /><span class="small">Also deletes your answers to them.</span><button class="btn small danger">Confirm delete</button><button type="button" class="btn small ghost" onclick={() => (confirmDel = null)}>Cancel</button></form>
+							{:else}<button class="btn small ghost danger" onclick={() => (confirmDel = src.source)}>Delete set</button>{/if}
+						{/if}</td></tr>
+				{/each}
+			</tbody>
+		</table></div>
+		{#if form?.deleted !== undefined}<p class="flash">{form.deleted} questions deleted.</p>{/if}
+	</div>
+
+	<details class="card">
+		<summary><b>Import questions (JSON)</b> <span class="muted small">· for QCMs Claude prepared for you, stored in your database only</span></summary>
+		<form method="POST" action="?/import" enctype="multipart/form-data" class="stack-s" use:enhance>
+			<label class="field" for="qfile">JSON file<input id="qfile" name="file" type="file" accept=".json,application/json" /></label>
+			<label class="field" for="qjson">…or paste JSON<textarea id="qjson" name="json" placeholder={EXAMPLE}></textarea></label>
+			<p class="small muted">Format: an array of objects with <code>topic</code> (e.g. "3.4"), <code>question</code>, <code>options</code> (2 to 6), <code>answer</code> (index from 0, a letter like "B", or a list for "Choose two"), <code>explanation</code> and an optional <code>source</code> name. Duplicates are skipped.</p>
+			{#if form?.importReport}
+				<div class="flash {form.importReport.errors.length && !form.importReport.added ? 'err' : ''}">
+					{form.importReport.added} added · {form.importReport.duplicates} duplicates skipped{form.importReport.errors.length ? ` · ${form.importReport.errors.length} errors` : ''}
+					{#if form.importReport.errors.length}<ul class="small">{#each form.importReport.errors.slice(0, 10) as e}<li>{e}</li>{/each}</ul>{/if}
+				</div>
+			{/if}
+			<button class="btn primary">Import</button>
+		</form>
+	</details>
 
 	<details class="card">
 		<summary><b>Add my own question</b> <span class="muted small">(during class or after a mistake in a practice exam)</span></summary>

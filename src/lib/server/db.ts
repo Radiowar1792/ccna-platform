@@ -7,6 +7,7 @@ import { createEmptyCard } from 'ts-fsrs';
 import { SEED_CARDS } from '$lib/data/cards';
 import { SEED_QUESTIONS } from '$lib/data/questions';
 import { COURSE } from '$lib/data/videos';
+import { LESSONS } from '$lib/data/lessons';
 
 const path = resolve(env.DATABASE_PATH || './data/ccna.db');
 mkdirSync(dirname(path), { recursive: true });
@@ -59,6 +60,14 @@ const MIGRATIONS: string[] = [
 	UPDATE cards SET deck = 'Commands' WHERE deck = 'Commandes';
 	UPDATE cards SET deck = 'Tech English' WHERE deck = 'Anglais technique';
 	UPDATE cards SET deck = 'My cards' WHERE deck = 'Mes cartes';
+	`,
+	// 3 — cartes liées à un Day (déblocage après la vidéo, comme le deck Anki de Jeremy) + annulation
+	`
+	ALTER TABLE cards ADD COLUMN day INTEGER;
+	ALTER TABLE cards ADD COLUMN source TEXT;
+	CREATE INDEX cards_day ON cards(day);
+	ALTER TABLE reviews ADD COLUMN prev TEXT;
+	ALTER TABLE questions ADD COLUMN source TEXT;
 	`
 ];
 
@@ -99,6 +108,26 @@ function seed() {
 		insQ.run(q.key, q.topic, q.stem, JSON.stringify(q.options), JSON.stringify(q.answer), q.explanation, iso);
 	}
 	for (const v of COURSE) insV.run(v.day, v.title);
+
+	// Vocabulaire des leçons : une carte par terme, rattachée à son Day.
+	const insLesson = db.prepare(
+		'INSERT OR IGNORE INTO cards (seed_key, deck, topic, day, front, back, fsrs, due, created_at, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+	);
+	for (const l of LESSONS) {
+		const topic = COURSE.find((c) => c.day === l.day)?.topics[0] ?? null;
+		l.vocab.forEach(([en, fr], i) => {
+			insLesson.run(`lv-${l.day}-${i}`, 'Video vocabulary', topic, l.day, en, fr, JSON.stringify(createEmptyCard(now)), iso, iso, 'lesson');
+		});
+	}
+	// Cartes de départ sans Day : rattachées au premier Day qui traite leur thème.
+	const firstDay = new Map<string, number>();
+	for (const c of COURSE) for (const t of c.topics) if (!firstDay.has(t)) firstDay.set(t, c.day);
+	const setDay = db.prepare('UPDATE cards SET day = ? WHERE id = ?');
+	for (const r of db.prepare("SELECT id, topic FROM cards WHERE day IS NULL AND seed_key IS NOT NULL AND source IS NULL").all() as { id: number; topic: string }[]) {
+		const d = firstDay.get(r.topic);
+		if (d) setDay.run(d, r.id);
+	}
+	db.prepare("UPDATE cards SET source = 'seed' WHERE source IS NULL AND seed_key IS NOT NULL").run();
 	db.exec('COMMIT');
 }
 
